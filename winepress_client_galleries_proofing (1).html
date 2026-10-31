@@ -1,0 +1,2725 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WINEPRESS — Client Galleries, Proofing & Digital Delivery</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Cormorant Garamond for Luxury Editorial Headings, Plus Jakarta Sans for UI, JetBrains Mono for Filenames -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- JSZip for Real Client-Side ZIP Bundling of Delivered Photos -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        wine: {
+                            50: '#fcf6f7',
+                            100: '#f8ebed',
+                            200: '#f1d7db',
+                            300: '#e5b5bd',
+                            400: '#d48896',
+                            500: '#be5d70',
+                            600: '#9e3b50',
+                            700: '#722F37', // Primary Winepress Burgundy
+                            800: '#5E1914', // Deep Winepress Reserve
+                            900: '#4a1512',
+                            950: '#2b0908',
+                        },
+                        alabaster: '#FAF8F5',
+                        studio: '#111111',
+                        studioCard: '#1A1A1A'
+                    },
+                    fontFamily: {
+                        serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+                        sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Editorial Scrollbars & Masonry Polish */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(114, 47, 55, 0.3);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(114, 47, 55, 0.6);
+        }
+
+        /* Masonry Grid Layout */
+        .masonry-grid {
+            column-count: 1;
+            column-gap: 1.25rem;
+        }
+        @media (min-width: 640px) {
+            .masonry-grid { column-count: 2; }
+        }
+        @media (min-width: 1024px) {
+            .masonry-grid { column-count: 3; }
+        }
+        @media (min-width: 1440px) {
+            .masonry-grid.cols-4 { column-count: 4; }
+        }
+        .masonry-item {
+            break-inside: avoid;
+            margin-bottom: 1.25rem;
+        }
+
+        /* Proofing Watermark Pattern */
+        .watermark-diagonal {
+            background-image: repeating-linear-gradient(
+                -35deg,
+                transparent,
+                transparent 80px,
+                rgba(255, 255, 255, 0.04) 80px,
+                rgba(255, 255, 255, 0.04) 160px
+            );
+        }
+
+        /* Smooth image reveal */
+        .photo-card-img {
+            transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
+        }
+        .group:hover .photo-card-img {
+            transform: scale(1.025);
+        }
+
+        /* Disable right-click drag on proof images when watermark is active */
+        .protected-img {
+            -webkit-user-drag: none;
+            user-select: none;
+        }
+
+        @keyframes pulseSubtle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.65; }
+        }
+        .animate-pulse-subtle {
+            animation: pulseSubtle 2.5s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-alabaster text-stone-900 dark:bg-studio dark:text-stone-100 font-sans antialiased selection:bg-wine-700 selection:text-white transition-colors duration-300 min-h-screen flex flex-col">
+
+    <!-- ==========================================
+         TOP STUDIO & ROLE NAVIGATION BAR
+         ========================================== -->
+    <header class="sticky top-0 z-40 backdrop-blur-md bg-alabaster/90 dark:bg-studio/90 border-b border-stone-200/80 dark:border-stone-800/80 transition-colors">
+        <div class="max-w-[1600px] mx-auto px-4 sm:px-8 h-16 flex items-center justify-between gap-3">
+            
+            <!-- Left: Brand Identity & Gallery Switcher -->
+            <div class="flex items-center gap-4 sm:gap-6">
+                <a href="#top" onclick="scrollToTop(event)" class="group flex items-center gap-3 text-left focus:outline-none">
+                    <div class="w-9 h-9 rounded-full bg-wine-700 text-white flex items-center justify-center font-serif text-xl font-semibold tracking-wider shadow-sm group-hover:bg-wine-800 transition-colors">
+                        W
+                    </div>
+                    <div>
+                        <span class="block font-serif text-xl sm:text-2xl tracking-[0.22em] font-semibold text-stone-900 dark:text-white leading-none">
+                            WINEPRESS
+                        </span>
+                        <span class="block text-[9px] tracking-[0.28em] uppercase text-stone-500 dark:text-stone-400 mt-0.5">
+                            Client Galleries &amp; Proofing
+                        </span>
+                    </div>
+                </a>
+
+                <div class="hidden md:block h-5 w-[1px] bg-stone-300 dark:bg-stone-700"></div>
+
+                <!-- Active Gallery Selector Dropdown -->
+                <div class="relative">
+                    <label for="gallerySelect" class="sr-only">Choose Active Gallery</label>
+                    <div class="flex items-center gap-1.5 bg-stone-100 dark:bg-stone-800/90 hover:bg-stone-200/70 dark:hover:bg-stone-800 border border-stone-200/90 dark:border-stone-700 rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors">
+                        <i data-lucide="folder-heart" class="w-3.5 h-3.5 text-wine-700 dark:text-wine-400 shrink-0"></i>
+                        <select id="gallerySelect" onchange="switchGallery(this.value)" class="bg-transparent text-stone-800 dark:text-stone-200 font-medium focus:outline-none cursor-pointer pr-2 max-w-[150px] sm:max-w-[230px] truncate">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Live Cloud Sync Status Indicator Pill -->
+                <div id="cloudSyncPill" class="hidden xl:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-700 dark:text-emerald-300 text-[10px] font-mono tracking-wider uppercase">
+                    <span id="cloudSyncDot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span id="cloudSyncText">CLOUD SYNCED • LIVE</span>
+                </div>
+            </div>
+
+            <!-- Center: Role Switcher (Client View vs Locked Studio Admin) -->
+            <div class="flex items-center bg-stone-200/75 dark:bg-stone-800/90 p-1 rounded-full border border-stone-300/60 dark:border-stone-700">
+                <button id="roleClientBtn" onclick="setAppRole('client')" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all bg-white dark:bg-stone-900 text-stone-900 dark:text-white shadow-sm">
+                    <i data-lucide="eye" class="w-3.5 h-3.5 text-wine-700 dark:text-wine-400"></i>
+                    <span>Client Portal</span>
+                </button>
+                <button id="roleAdminBtn" onclick="requestAdminAccess()" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white">
+                    <i id="adminLockIcon" data-lucide="lock" class="w-3.5 h-3.5"></i>
+                    <span>Studio Admin</span>
+                    <span id="adminBadgeCount" class="hidden sm:inline-flex items-center justify-center px-1.5 py-0.2 text-[10px] rounded-full bg-wine-700/15 text-wine-700 dark:bg-wine-400/20 dark:text-wine-300 font-mono">3</span>
+                </button>
+            </div>
+
+            <!-- Right: Quick Actions (Selection Pill, GitHub Guide, Dark Mode) -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <!-- Live Selection Status Button -->
+                <button onclick="openSubmitModal()" id="headerSelectionBtn" class="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-wine-700 hover:bg-wine-800 text-white text-xs font-medium shadow-sm transition-all">
+                    <i data-lucide="heart" class="w-3.5 h-3.5 fill-current"></i>
+                    <span id="headerSelectionCounter" class="font-mono">0 / 15</span>
+                    <span class="hidden sm:inline">Selected</span>
+                </button>
+
+                <!-- GitHub Pages Hosting & Sync Modal Trigger -->
+                <button onclick="openGitHubModal()" title="GitHub Pages Hosting & Deployment Guide" class="p-2 rounded-full bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 border border-stone-200/80 dark:border-stone-700 transition-colors">
+                    <i data-lucide="github" class="w-4 h-4"></i>
+                </button>
+
+                <!-- Color-Accurate Studio Dark Mode Toggle -->
+                <button onclick="toggleTheme()" id="themeToggleBtn" title="Toggle Studio Dark / Light Mode" class="p-2 rounded-full bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 border border-stone-200/80 dark:border-stone-700 transition-colors">
+                    <i data-lucide="moon" class="w-4 h-4 dark:hidden"></i>
+                    <i data-lucide="sun" class="w-4 h-4 hidden dark:block text-amber-400"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==========================================
+         CLIENT PORTAL VIEW
+         ========================================== -->
+    <main id="clientPortalView" class="flex-1">
+        
+        <!-- Full-Bleed Luxury Editorial Hero Cover -->
+        <section id="heroSection" class="relative h-[72vh] min-h-[500px] max-h-[780px] w-full overflow-hidden bg-stone-900">
+            <img id="heroCoverImg" src="" alt="Gallery Cover" class="w-full h-full object-cover object-center scale-105 transition-transform duration-1000 opacity-85">
+            <!-- Sophisticated Editorial Vignette Overlay -->
+            <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/30"></div>
+
+            <!-- Top Overlay Meta Info -->
+            <div class="absolute top-6 left-4 sm:left-10 right-4 sm:right-10 flex flex-wrap items-center justify-between gap-2 text-white/85 text-xs tracking-widest uppercase">
+                <div class="flex items-center gap-2 bg-black/35 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/15">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span id="heroStatusBadge">PROOFING &amp; SELECTION OPEN</span>
+                </div>
+                <div class="flex items-center gap-3 bg-black/35 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/15 font-mono text-[11px]">
+                    <span id="heroClientCode">CODE: WP-2026</span>
+                    <span>•</span>
+                    <span id="heroPhotoCount">0 PHOTOS</span>
+                </div>
+            </div>
+
+            <!-- Center Editorial Title & Actions -->
+            <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-4 max-w-4xl mx-auto">
+                <p id="heroSubtitle" class="text-xs sm:text-sm uppercase tracking-[0.35em] text-stone-300 mb-3 font-medium">
+                    WINEPRESS COMMISSIONS
+                </p>
+                <h1 id="heroTitle" class="font-serif text-4xl sm:text-6xl md:text-7xl text-white font-normal tracking-wide leading-[1.08] mb-4 drop-shadow-sm">
+                    The Winepress Awakening
+                </h1>
+                <p id="heroDateAndLocation" class="text-xs sm:text-sm tracking-[0.2em] uppercase text-stone-300/90 mb-8">
+                    OCTOBER 2026 &nbsp;•&nbsp; LAGOS, NIGERIA
+                </p>
+
+                <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+                    <a href="#galleryToolbar" class="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-white text-stone-950 hover:bg-stone-100 text-xs uppercase tracking-[0.2em] font-semibold transition-all shadow-lg hover:shadow-xl">
+                        <span>Open Gallery</span>
+                        <i data-lucide="arrow-down" class="w-4 h-4"></i>
+                    </a>
+                    <button onclick="openDownloadPinModal('all')" class="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-full bg-wine-700/90 hover:bg-wine-700 text-white backdrop-blur-md border border-wine-400/30 text-xs uppercase tracking-[0.18em] font-semibold transition-all shadow-lg">
+                        <i data-lucide="download" class="w-4 h-4"></i>
+                        <span>Download Photos</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Photographer Welcome Note Bar at Bottom of Hero -->
+            <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 to-transparent py-5 px-4 sm:px-10">
+                <div class="max-w-[1500px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+                    <p id="heroWelcomeMessage" class="text-xs sm:text-sm text-stone-300 italic font-serif tracking-wide max-w-2xl">
+                        "Please heart your favorite frames for master retouching and final high-resolution delivery."
+                    </p>
+                    <div class="flex items-center gap-4 text-xs text-stone-300">
+                        <span class="flex items-center gap-1.5">
+                            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-wine-400"></i>
+                            <span>Package Limit: <strong id="heroPackageLimit" class="text-white font-mono">15</strong> Retouched Picks</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             STICKY GALLERY FILTER & ACTION TOOLBAR
+             ========================================== -->
+        <section id="galleryToolbar" class="sticky top-16 z-30 bg-alabaster/95 dark:bg-studio/95 backdrop-blur-md border-b border-stone-200 dark:border-stone-800 transition-colors">
+            <div class="max-w-[1600px] mx-auto px-4 sm:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+                
+                <!-- Category Tabs -->
+                <div id="categoryTabsContainer" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+                    <!-- Populated dynamically via JS -->
+                </div>
+
+                <!-- Right Controls: Search, Watermark Indicator, Grid Density, Actions -->
+                <div class="flex flex-wrap items-center gap-2.5 ml-auto">
+                    
+                    <!-- Filename / Note Search -->
+                    <div class="relative">
+                        <i data-lucide="search" class="w-3.5 h-3.5 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                        <input id="photoSearchInput" type="text" oninput="handleSearchInput(this.value)" placeholder="Search filename (e.g. 0042)..." class="pl-8 pr-3 py-1.5 rounded-full text-xs bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 focus:outline-none focus:border-wine-700 w-44 sm:w-56 font-mono">
+                    </div>
+
+                    <!-- Grid Density Switcher -->
+                    <div class="hidden lg:flex items-center bg-stone-100 dark:bg-stone-800 p-0.5 rounded-full border border-stone-200 dark:border-stone-700">
+                        <button onclick="setGridDensity('comfortable')" id="densityComfortableBtn" title="3-Column Editorial Grid" class="px-2.5 py-1 rounded-full text-xs font-medium bg-white dark:bg-stone-900 shadow-sm text-stone-900 dark:text-white">
+                            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+                        </button>
+                        <button onclick="setGridDensity('compact')" id="densityCompactBtn" title="4-Column Proofing Grid" class="px-2.5 py-1 rounded-full text-xs font-medium text-stone-500 hover:text-stone-900 dark:hover:text-white">
+                            <i data-lucide="grid" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+
+                    <!-- Send Final Selection CTA -->
+                    <button onclick="openSubmitModal()" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-wine-700 hover:bg-wine-800 text-white text-xs font-semibold tracking-wide transition-all shadow-sm">
+                        <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                        <span>Submit Picks to Photographer</span>
+                    </button>
+
+                    <!-- Download ZIP CTA -->
+                    <button onclick="openDownloadPinModal('all')" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-stone-900 hover:bg-stone-800 dark:bg-stone-100 dark:hover:bg-white text-white dark:text-stone-900 text-xs font-semibold transition-all">
+                        <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                        <span class="hidden sm:inline">Download .ZIP</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Interactive Proofing Progress Bar -->
+            <div class="w-full h-1 bg-stone-200 dark:bg-stone-800 overflow-hidden">
+                <div id="selectionProgressBar" class="h-full bg-wine-700 transition-all duration-300" style="width: 0%"></div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             GALLERY MASONRY PHOTO GRID
+             ========================================== -->
+        <section class="max-w-[1600px] mx-auto px-4 sm:px-8 py-8 sm:py-12">
+            
+            <!-- Status Banner for Client Instructions -->
+            <div class="mb-8 p-4 sm:px-6 rounded-2xl bg-stone-100/90 dark:bg-stone-900/80 border border-stone-200/80 dark:border-stone-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div class="flex items-start sm:items-center gap-3.5">
+                    <div class="w-10 h-10 rounded-full bg-wine-700/10 dark:bg-wine-500/10 text-wine-700 dark:text-wine-400 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
+                        <i data-lucide="sparkles" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-sm font-semibold text-stone-900 dark:text-white flex items-center gap-2">
+                            <span>Client Proofing &amp; Selection Assistant</span>
+                            <span id="extraPicksBadge" class="hidden px-2 py-0.5 text-[10px] rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 font-mono">Extra Picks Added</span>
+                        </h2>
+                        <p class="text-xs text-stone-600 dark:text-stone-400 mt-0.5">
+                            Click the <strong class="text-wine-700 dark:text-wine-400">Heart icon</strong> on your favorite photographs to add them to your selection list, or add retouch notes (e.g., <em>"B&amp;W version"</em>, <em>"Remove background distraction"</em>).
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 self-end sm:self-center shrink-0">
+                    <button onclick="filterByCategory('Selected')" class="px-3.5 py-1.5 rounded-full text-xs font-medium bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:border-wine-700 transition-colors">
+                        View My Picks (<span id="bannerSelectedCount">0</span>)
+                    </button>
+                    <button onclick="openClientCodeModal()" class="px-3.5 py-1.5 rounded-full text-xs font-medium bg-stone-200/70 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-300/70 transition-colors flex items-center gap-1">
+                        <i data-lucide="key-round" class="w-3 h-3"></i>
+                        <span>Enter Client Code</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Empty State when no photos match filter -->
+            <div id="emptyGalleryState" class="hidden py-20 text-center max-w-md mx-auto">
+                <div class="w-14 h-14 rounded-full bg-stone-200/70 dark:bg-stone-800 mx-auto flex items-center justify-center text-stone-500 mb-4">
+                    <i data-lucide="heart-off" class="w-6 h-6"></i>
+                </div>
+                <h3 class="font-serif text-2xl font-medium text-stone-900 dark:text-white mb-2">No photographs in this view</h3>
+                <p class="text-xs text-stone-500 dark:text-stone-400 mb-6 leading-relaxed">
+                    You haven't selected any favorites in this filter yet, or no filenames matched your search query.
+                </p>
+                <button onclick="filterByCategory('All')" class="px-5 py-2.5 rounded-full bg-wine-700 text-white text-xs font-semibold uppercase tracking-wider hover:bg-wine-800 transition-colors">
+                    Show All Photographs
+                </button>
+            </div>
+
+            <!-- Masonry Photo Container -->
+            <div id="masonryGrid" class="masonry-grid">
+                <!-- Populated dynamically via JS -->
+            </div>
+        </section>
+    </main>
+
+    <!-- ==========================================
+         PHOTOGRAPHER STUDIO ADMIN DASHBOARD VIEW
+         ========================================== -->
+    <section id="studioAdminView" class="hidden flex-1 bg-stone-100/70 dark:bg-studio py-8 sm:py-12">
+        <div class="max-w-[1600px] mx-auto px-4 sm:px-8">
+            
+            <!-- Admin Header Banner -->
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-8 border-b border-stone-200 dark:border-stone-800">
+                <div>
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-wine-700/10 text-wine-700 dark:bg-wine-400/15 dark:text-wine-300 text-xs font-semibold mb-2">
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                        <span>WINEPRESS STUDIO MANAGER • REAL-TIME CLOUD SYNC</span>
+                    </div>
+                    <h1 class="font-serif text-3xl sm:text-4xl font-semibold text-stone-900 dark:text-white">
+                        Gallery Production, Cloud Upload &amp; Client Delivery
+                    </h1>
+                    <p class="text-xs sm:text-sm text-stone-600 dark:text-stone-400 mt-1">
+                        Every setting, uploaded photo, client heart, and retouch note syncs automatically across all devices in real time.
+                    </p>
+                    <p id="adminCloudUidDisplay" class="text-[11px] font-mono text-stone-400 mt-1">
+                        Session ID: Initializing Cloud Auth...
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-3">
+                    <button onclick="createNewGalleryModal()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-stone-900 dark:bg-white text-white dark:text-stone-900 text-xs font-semibold hover:opacity-90 transition-all shadow-sm">
+                        <i data-lucide="folder-plus" class="w-4 h-4"></i>
+                        <span>+ New Cloud Gallery</span>
+                    </button>
+                    <button onclick="exportForGitHubPages()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-wine-700 hover:bg-wine-800 text-white text-xs font-semibold transition-all shadow-sm">
+                        <i data-lucide="code-2" class="w-4 h-4"></i>
+                        <span>Export Backup `galleries.json`</span>
+                    </button>
+                    <button onclick="lockAdminSession()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-200 text-xs font-semibold hover:border-red-600 hover:text-red-600 transition-all">
+                        <i data-lucide="log-out" class="w-4 h-4"></i>
+                        <span>Lock Admin</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 3-Column Admin Workspace -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8">
+                
+                <!-- LEFT COLUMN (4 cols): Gallery Settings & Rules -->
+                <div class="lg:col-span-4 space-y-6">
+                    
+                    <!-- Active Gallery Settings Card -->
+                    <div class="bg-white dark:bg-studioCard rounded-2xl p-6 border border-stone-200/80 dark:border-stone-800 shadow-sm">
+                        <div class="flex items-center justify-between mb-5">
+                            <h2 class="font-serif text-xl font-semibold text-stone-900 dark:text-white flex items-center gap-2">
+                                <i data-lucide="settings-2" class="w-5 h-5 text-wine-700 dark:text-wine-400"></i>
+                                <span>Gallery Settings</span>
+                            </h2>
+                            <span id="adminGalleryIdBadge" class="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-stone-100 dark:bg-stone-800 text-stone-500">ID: wp-1</span>
+                        </div>
+
+                        <div class="space-y-4 text-xs">
+                            <div>
+                                <label class="block font-semibold text-stone-700 dark:text-stone-300 mb-1.5">Gallery / Event Title</label>
+                                <input id="adminTitleInput" type="text" oninput="updateGalleryConfig('title', this.value)" class="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-700 focus:outline-none focus:border-wine-700">
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block font-semibold text-stone-700 dark:text-stone-300 mb-1.5">Event Date &amp; City</label>
+                                    <input id="adminDateInput" type="text" oninput="updateGalleryConfig('dateLocation', this.value)" class="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-700 focus:outline-none focus:border-wine-700">
+                                </div>
+                                <div>
+                                    <label class="block font-semibold text-stone-700 dark:text-stone-300 mb-1.5">Client Access Code</label>
+                                    <input id="adminCodeInput" type="text" oninput="updateGalleryConfig('clientCode', this.value)" class="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-700 font-mono focus:outline-none focus:border-wine-700">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block font-semibold text-stone-700 dark:text-stone-300 mb-1.5">Package Pick Limit</label>
+                                    <input id="adminLimitInput" type="number" min="1" max="500" oninput="updateGalleryConfig('selectionLimit', parseInt(this.value) || 15)" class="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-700 font-mono focus:outline-none focus:border-wine-700">
+                                </div>
+                                <div>
+                                    <label class="block font-semibold text-stone-700 dark:text-stone-300 mb-1.5">Download PIN Code</label>
+                                    <input id="adminPinInput" type="text" maxlength="8" oninput="updateGalleryConfig('downloadPin', this.value)" class="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-700 font-mono focus:outline-none focus:border-wine-700">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block font-semibold text-stone-700 dark:text-stone-300 mb-1.5">Gallery Workflow Mode</label>
+                                <select id="adminStatusSelect" onchange="updateGalleryConfig('status', this.value)" class="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-700 focus:outline-none focus:border-wine-700">
+                                    <option value="PROOFING & SELECTION OPEN">Proofing &amp; Selection Open (Clients Heart Picks)</option>
+                                    <option value="FINAL DELIVERY READY">Final High-Res Delivery Ready (Clients Download)</option>
+                                    <option value="ARCHIVED GALLERY">Archived / Read-Only</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block font-semibold text-stone-700 dark:text-stone-300 mb-1.5">Photographer Welcome Note</label>
+                                <textarea id="adminWelcomeInput" rows="2" oninput="updateGalleryConfig('welcomeNote', this.value)" class="w-full px-3.5 py-2 rounded-xl bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-700 focus:outline-none focus:border-wine-700"></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block font-semibold text-stone-700 dark:text-stone-300 mb-1 flex items-center justify-between">
+                                    <span class="flex items-center gap-1.5">
+                                        <i data-lucide="hard-drive-download" class="w-3.5 h-3.5 text-wine-700 dark:text-wine-400"></i>
+                                        <span>Google Drive Master Delivery Link (Optional)</span>
+                                    </span>
+                                </label>
+                                <input id="adminDriveDeliveryUrlInput" type="url" oninput="updateGalleryConfig('driveDeliveryUrl', this.value.trim())" placeholder="https://drive.google.com/drive/folders/... or .zip link" class="w-full px-3.5 py-2 rounded-xl bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-700 font-mono text-[11px] focus:outline-none focus:border-wine-700">
+                                <span class="block text-[10px] text-stone-400 mt-1">Unlocked after client enters their 4-digit Download PIN for instant high-res delivery.</span>
+                            </div>
+
+                            <!-- Proofing Watermark Toggle -->
+                            <div class="pt-2 flex items-center justify-between border-t border-stone-200 dark:border-stone-800">
+                                <div>
+                                    <span class="block font-semibold text-stone-800 dark:text-stone-200">Studio Proofing Watermark</span>
+                                    <span class="text-[11px] text-stone-500">Overlays subtle "WINEPRESS PROOF" crest on photos</span>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="adminWatermarkToggle" onchange="updateGalleryConfig('watermark', this.checked)" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-stone-300 peer-focus:outline-none rounded-full peer dark:bg-stone-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-wine-700"></div>
+                                </label>
+                            </div>
+
+                            <!-- Default Dark Studio Mode Toggle -->
+                            <div class="pt-2 flex items-center justify-between border-t border-stone-200 dark:border-stone-800">
+                                <div>
+                                    <span class="block font-semibold text-stone-800 dark:text-stone-200">Default Dark Studio Theme</span>
+                                    <span class="text-[11px] text-stone-500">Open this gallery in dark studio mode by default</span>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="adminDarkModeToggle" onchange="updateGalleryConfig('defaultDarkMode', this.checked)" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-stone-300 peer-focus:outline-none rounded-full peer dark:bg-stone-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-wine-700"></div>
+                                </label>
+                            </div>
+
+                            <!-- Studio Master Admin Passcode Update -->
+                            <div class="pt-3 border-t border-stone-200 dark:border-stone-800">
+                                <label class="block font-semibold text-stone-700 dark:text-stone-300 mb-1">Studio Admin Master Passcode (Cloud Synced)</label>
+                                <div class="flex gap-2">
+                                    <input id="adminMasterPasscodeInput" type="password" placeholder="Default: WINEPRESS2026" class="flex-1 px-3 py-2 rounded-xl bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-700 font-mono focus:outline-none focus:border-wine-700">
+                                    <button onclick="saveNewAdminPasscode()" class="px-3.5 py-2 rounded-xl bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 font-semibold hover:opacity-90">
+                                        Save Key
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live Client Selection & Lightroom Inspector Card -->
+                    <div class="bg-white dark:bg-studioCard rounded-2xl p-6 border border-stone-200/80 dark:border-stone-800 shadow-sm">
+                        <div class="flex items-center justify-between mb-3">
+                            <h2 class="font-serif text-xl font-semibold text-stone-900 dark:text-white flex items-center gap-2">
+                                <i data-lucide="list-checks" class="w-5 h-5 text-wine-700 dark:text-wine-400"></i>
+                                <span>Live Client Selections &amp; Notes Inspector</span>
+                            </h2>
+                            <span id="adminSelectedCountPill" class="px-2.5 py-0.5 rounded-full text-xs font-mono bg-wine-700 text-white">0 Picks</span>
+                        </div>
+                        <p class="text-xs text-stone-500 dark:text-stone-400 mb-3">
+                            Copy this comma-separated list directly into <strong>Adobe Lightroom Classic (Library &rarr; Text &rarr; Filename &rarr; Contains)</strong> or Capture One to isolate the client's chosen RAW files in 1 second.
+                        </p>
+
+                        <div class="relative mb-3">
+                            <textarea id="adminLightroomString" readonly rows="3" class="w-full p-3 rounded-xl bg-stone-100 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 font-mono text-xs text-stone-800 dark:text-stone-200 focus:outline-none"></textarea>
+                            <button onclick="copyLightroomString()" class="absolute bottom-2.5 right-2.5 px-3 py-1.5 rounded-lg bg-wine-700 hover:bg-wine-800 text-white text-[11px] font-semibold flex items-center gap-1.5 shadow">
+                                <i data-lucide="copy" class="w-3 h-3"></i>
+                                <span>Copy Filter String</span>
+                            </button>
+                        </div>
+
+                        <!-- Detailed Retouching Notes List -->
+                        <div id="adminRetouchNotesList" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT COLUMN (8 cols): Upload Pictures & Manage Gallery Photos -->
+                <div class="lg:col-span-8 space-y-6">
+                    
+                    <!-- Upload & GitHub Folder Generator Card -->
+                    <div class="bg-white dark:bg-studioCard rounded-2xl p-6 border border-stone-200/80 dark:border-stone-800 shadow-sm">
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-5">
+                            <div>
+                                <h2 class="font-serif text-xl font-semibold text-stone-900 dark:text-white flex items-center gap-2">
+                                    <i data-lucide="upload-cloud" class="w-5 h-5 text-wine-700 dark:text-wine-400"></i>
+                                    <span>Add Photographs to Active Gallery</span>
+                                </h2>
+                                <p class="text-xs text-stone-500 dark:text-stone-400">
+                                    Drag &amp; drop local JPEG/PNG files for instant preview, or batch-import GitHub repo paths / image URLs.
+                                </p>
+                            </div>
+
+                            <!-- Default Category for New Uploads -->
+                            <div class="flex items-center gap-2 text-xs">
+                                <span class="text-stone-500">Assign Category:</span>
+                                <select id="uploadCategorySelect" class="px-3 py-1.5 rounded-lg bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 font-medium">
+                                    <option value="Portraits">Portraits</option>
+                                    <option value="Ceremony & Event">Ceremony &amp; Event</option>
+                                    <option value="Editorial Details">Editorial Details</option>
+                                    <option value="Keynote & Stage">Keynote &amp; Stage</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Local Drag & Drop Zone with Auto Cloud Compression -->
+                            <label id="dropZone" for="localFileInput" class="cursor-pointer border-2 border-dashed border-stone-300 dark:border-stone-700 hover:border-wine-700 dark:hover:border-wine-500 rounded-2xl p-6 flex flex-col items-center justify-center text-center transition-colors bg-stone-50/60 dark:bg-stone-900/40">
+                                <div class="w-12 h-12 rounded-full bg-wine-700/10 text-wine-700 dark:text-wine-400 flex items-center justify-center mb-3">
+                                    <i data-lucide="cloud-upload" class="w-6 h-6"></i>
+                                </div>
+                                <span id="dropZoneLabelText" class="text-xs font-semibold text-stone-800 dark:text-stone-200">Click or Drag &amp; Drop Photos to Cloud</span>
+                                <span class="text-[11px] text-stone-500 mt-1">Auto-optimizes &amp; syncs across all devices in real time</span>
+                                <input id="localFileInput" type="file" accept="image/*" multiple onchange="handleLocalFilesUpload(this.files)" class="hidden">
+                            </label>
+
+                            <!-- GitHub Folder / URL Batch Importer -->
+                            <div class="border border-stone-200 dark:border-stone-800 rounded-2xl p-4 bg-stone-50/60 dark:bg-stone-900/40 flex flex-col justify-between">
+                                <div>
+                                    <div class="flex items-center justify-between mb-1.5">
+                                        <span class="text-xs font-semibold text-stone-800 dark:text-stone-200 flex items-center gap-1.5">
+                                            <i data-lucide="folder-git-2" class="w-4 h-4 text-wine-700 dark:text-wine-400"></i>
+                                            <span>Batch Add via URL or GitHub `/photos/` Path</span>
+                                        </span>
+                                    </div>
+                                    <textarea id="batchUrlInput" rows="3" placeholder="Paste image URLs or GitHub paths (one per line), e.g.:&#10;photos/awakening/WP_2026_0101.jpg&#10;https://images.unsplash.com/photo-..." class="w-full p-2.5 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 text-xs font-mono focus:outline-none focus:border-wine-700"></textarea>
+                                </div>
+                                <div class="flex items-center justify-between gap-2 mt-2.5">
+                                    <button onclick="openSequentialGeneratorModal()" class="text-[11px] font-semibold text-wine-700 dark:text-wine-400 hover:underline flex items-center gap-1">
+                                        <i data-lucide="wand-2" class="w-3.5 h-3.5"></i>
+                                        <span>Auto-Generate `WP_0001`–`0050` Paths</span>
+                                    </button>
+                                    <button onclick="handleBatchUrlImport()" class="px-3.5 py-1.5 rounded-lg bg-stone-900 dark:bg-white text-white dark:text-stone-900 text-xs font-semibold hover:opacity-90 transition-opacity">
+                                        Import Photos
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ==========================================
+                             DEDICATED GOOGLE DRIVE SYNC & DIRECT IMPORT MODULE
+                             ========================================== -->
+                        <div class="mt-5 pt-5 border-t border-stone-200 dark:border-stone-800">
+                            <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                                        <i data-lucide="hard-drive" class="w-4 h-4"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-sm font-semibold text-stone-900 dark:text-white flex items-center gap-2">
+                                            <span>Google Drive Direct Sync &amp; Link Importer</span>
+                                            <span class="px-2 py-0.5 text-[10px] rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-mono">Unlimited High-Res Hosting</span>
+                                        </h3>
+                                        <p class="text-[11px] text-stone-500 dark:text-stone-400">
+                                            Stream photos directly from any shared Google Drive folder Set to <strong>"Anyone with the link can view"</strong>.
+                                        </p>
+                                    </div>
+                                </div>
+                                <button onclick="openDriveHelpModal()" class="px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 text-xs font-semibold flex items-center gap-1.5 transition-colors">
+                                    <i data-lucide="help-circle" class="w-3.5 h-3.5 text-wine-700 dark:text-wine-400"></i>
+                                    <span>How to Link Google Drive</span>
+                                </button>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                                <!-- Method 1: Automated Google Drive Folder Sync (Preserves Exact Camera Filenames) -->
+                                <div class="p-4 rounded-2xl border border-stone-200 dark:border-stone-800 bg-stone-50/70 dark:bg-stone-900/50 flex flex-col justify-between space-y-3">
+                                    <div class="space-y-2.5">
+                                        <div class="flex items-center justify-between">
+                                            <span class="font-semibold text-stone-900 dark:text-white flex items-center gap-1.5">
+                                                <i data-lucide="folder-sync" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i>
+                                                <span>Option A: Auto-Sync Entire Drive Folder</span>
+                                            </span>
+                                            <span class="text-[10px] font-mono text-stone-400">Keeps Exact Filenames</span>
+                                        </div>
+                                        <div>
+                                            <label class="block text-[11px] text-stone-500 mb-1">Shared Google Drive Folder Link or Folder ID</label>
+                                            <input id="driveFolderUrlInput" type="text" placeholder="https://drive.google.com/drive/folders/1A2B3C..." class="w-full px-3 py-2 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 font-mono text-[11px] focus:outline-none focus:border-wine-700">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[11px] text-stone-500 mb-1 flex items-center justify-between">
+                                                <span>Google Drive API Key (Saved in Cloud Config)</span>
+                                                <button onclick="openDriveHelpModal()" class="text-wine-700 dark:text-wine-400 hover:underline text-[10px]">Get Free Key &rarr;</button>
+                                            </label>
+                                            <input id="driveApiKeyInput" type="password" onchange="saveDriveApiKey(this.value)" placeholder="AIzaSy... (Required for full-folder auto-list)" class="w-full px-3 py-2 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 font-mono text-[11px] focus:outline-none focus:border-wine-700">
+                                        </div>
+                                    </div>
+                                    <button id="syncDriveFolderBtn" onclick="syncGoogleDriveFolder()" class="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center justify-center gap-2 transition-all shadow-sm">
+                                        <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                                        <span>Fetch &amp; Sync Drive Folder</span>
+                                    </button>
+                                </div>
+
+                                <!-- Method 2: Zero-API-Key Multi-Link Batch Importer -->
+                                <div class="p-4 rounded-2xl border border-stone-200 dark:border-stone-800 bg-stone-50/70 dark:bg-stone-900/50 flex flex-col justify-between space-y-3">
+                                    <div class="space-y-2">
+                                        <div class="flex items-center justify-between">
+                                            <span class="font-semibold text-stone-900 dark:text-white flex items-center gap-1.5">
+                                                <i data-lucide="link-2" class="w-4 h-4 text-wine-700 dark:text-wine-400"></i>
+                                                <span>Option B: Zero-API-Key Drive Link Importer</span>
+                                            </span>
+                                            <span class="text-[10px] font-mono text-emerald-600 dark:text-emerald-400">No API Key Needed</span>
+                                        </div>
+                                        <p class="text-[11px] text-stone-500 leading-relaxed">
+                                            In Google Drive, highlight your photos &rarr; click <strong>Copy Link</strong> &rarr; paste them all below. Optional: add custom filename after a comma.
+                                        </p>
+                                        <textarea id="driveBatchLinksInput" rows="3" placeholder="https://drive.google.com/file/d/1xYz.../view?usp=sharing, WP_0001.JPG&#10;https://drive.google.com/file/d/1aBc.../view?usp=sharing, WP_0002.JPG" class="w-full p-2.5 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 font-mono text-[11px] focus:outline-none focus:border-wine-700"></textarea>
+                                    </div>
+                                    <div class="flex items-center justify-between gap-2">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="text-[11px] text-stone-500">Prefix:</span>
+                                            <input id="drivePrefixInput" type="text" value="WP_DRIVE_" class="w-24 px-2 py-1 rounded-lg bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 font-mono text-[11px]">
+                                        </div>
+                                        <button onclick="importGoogleDriveShareLinks()" class="px-4 py-2.5 rounded-xl bg-wine-700 hover:bg-wine-800 text-white font-semibold flex items-center gap-1.5 transition-all shadow-sm">
+                                            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                            <span>Convert &amp; Add Drive Photos</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Admin Photo Grid Manager -->
+                    <div class="bg-white dark:bg-studioCard rounded-2xl p-6 border border-stone-200/80 dark:border-stone-800 shadow-sm">
+                        <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+                            <div>
+                                <h3 class="font-serif text-xl font-semibold text-stone-900 dark:text-white">
+                                    Photographs in Gallery (<span id="adminTotalPhotosCount">0</span>)
+                                </h3>
+                                <p class="text-xs text-stone-500">Click "Set Cover" on any image to make it the full-bleed hero banner.</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="clearAllClientSelections()" class="px-3 py-1.5 rounded-lg border border-stone-200 dark:border-stone-700 text-xs text-stone-600 dark:text-stone-300 hover:border-red-500 hover:text-red-600 transition-colors">
+                                    Reset Client Picks
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="adminPhotosList" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 max-h-[540px] overflow-y-auto pr-1">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         FULL-SCREEN LIGHTBOX & RETOUCHING MODAL
+         ========================================== -->
+    <div id="lightboxModal" class="fixed inset-0 z-50 hidden bg-black/95 backdrop-blur-xl flex flex-col justify-between select-none">
+        
+        <!-- Lightbox Top Bar -->
+        <div class="h-16 px-4 sm:px-8 flex items-center justify-between border-b border-white/10 text-white">
+            <div class="flex items-center gap-3">
+                <span id="lightboxIndexCounter" class="font-mono text-xs text-stone-400">1 / 12</span>
+                <span class="text-stone-600">•</span>
+                <span id="lightboxFilename" class="font-mono text-xs sm:text-sm font-medium tracking-wide text-white">WP_2026_001.JPG</span>
+                <span id="lightboxCategoryBadge" class="hidden sm:inline-block text-[10px] uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-white/10 text-stone-300">Portraits</span>
+            </div>
+
+            <div class="flex items-center gap-2 sm:gap-3">
+                <!-- Heart / Select Toggle in Lightbox -->
+                <button id="lightboxHeartBtn" onclick="togglePhotoSelectionFromLightbox()" class="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold transition-all bg-white/10 hover:bg-white/20 text-white">
+                    <i data-lucide="heart" class="w-4 h-4"></i>
+                    <span id="lightboxHeartText">Select Photo</span>
+                </button>
+
+                <!-- Single Photo High-Res Download -->
+                <button onclick="downloadCurrentLightboxPhoto()" title="Download High-Res File" class="p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                </button>
+
+                <!-- Close Lightbox -->
+                <button onclick="closeLightbox()" title="Close (Esc)" class="p-2.5 rounded-full bg-white/10 hover:bg-red-500/80 text-white transition-colors ml-2">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Lightbox Center Image Viewport -->
+        <div class="relative flex-1 flex items-center justify-center overflow-hidden px-4 sm:px-16 py-4">
+            <!-- Prev Arrow -->
+            <button onclick="navigateLightbox(-1)" class="absolute left-3 sm:left-6 z-20 p-3 rounded-full bg-black/50 hover:bg-white/20 text-white border border-white/15 transition-all">
+                <i data-lucide="chevron-left" class="w-6 h-6"></i>
+            </button>
+
+            <!-- Image Wrapper with Optional Proofing Watermark -->
+            <div class="relative max-h-full max-w-full flex items-center justify-center">
+                <img id="lightboxImage" src="" alt="Full View" class="max-h-[72vh] max-w-[90vw] object-contain rounded shadow-2xl transition-transform duration-300">
+                <!-- Dynamic Proofing Watermark Overlay -->
+                <div id="lightboxWatermark" class="hidden absolute inset-0 pointer-events-none flex items-center justify-center watermark-diagonal">
+                    <div class="border border-white/25 px-6 py-2.5 rounded bg-black/25 backdrop-blur-[1px] -rotate-12">
+                        <span class="font-serif text-lg sm:text-2xl tracking-[0.35em] text-white/40 uppercase font-semibold">WINEPRESS PROOF</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Next Arrow -->
+            <button onclick="navigateLightbox(1)" class="absolute right-3 sm:right-6 z-20 p-3 rounded-full bg-black/50 hover:bg-white/20 text-white border border-white/15 transition-all">
+                <i data-lucide="chevron-right" class="w-6 h-6"></i>
+            </button>
+        </div>
+
+        <!-- Lightbox Bottom Retouching Note Bar -->
+        <div class="px-4 sm:px-8 py-3.5 bg-stone-950/90 border-t border-white/10">
+            <div class="max-w-3xl mx-auto flex flex-col sm:flex-row items-center gap-3">
+                <div class="flex items-center gap-2 text-xs text-stone-300 shrink-0">
+                    <i data-lucide="message-square-plus" class="w-4 h-4 text-wine-400"></i>
+                    <span>Client Retouch Note:</span>
+                </div>
+                <input id="lightboxNoteInput" type="text" oninput="saveLightboxRetouchNote(this.value)" placeholder="Add specific editing request for this frame (e.g., 'Make Black & White', 'Remove exit sign', 'Crop tighter')..." class="w-full px-4 py-2 rounded-full bg-white/10 border border-white/15 text-xs text-white placeholder-stone-400 focus:outline-none focus:border-wine-400">
+                <span id="lightboxNoteSavedIndicator" class="text-[11px] font-mono text-emerald-400 opacity-0 transition-opacity shrink-0">✓ Saved</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         SUBMIT CLIENT SELECTION MODAL (PIXIESET STYLE)
+         ========================================== -->
+    <div id="submitSelectionModal" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-studioCard w-full max-w-2xl rounded-3xl border border-stone-200 dark:border-stone-800 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            
+            <!-- Modal Header -->
+            <div class="px-6 py-5 bg-stone-50 dark:bg-stone-900/70 border-b border-stone-200 dark:border-stone-800 flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] uppercase tracking-[0.25em] text-wine-700 dark:text-wine-400 font-semibold">Proofing Submission</span>
+                    <h3 class="font-serif text-2xl font-semibold text-stone-900 dark:text-white">Submit Your Selected Favorites</h3>
+                </div>
+                <button onclick="closeSubmitModal()" class="p-2 rounded-full hover:bg-stone-200/70 dark:hover:bg-stone-800 text-stone-500">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-5 max-h-[80vh] overflow-y-auto">
+                <!-- Selection Summary Banner -->
+                <div class="flex items-center justify-between p-4 rounded-2xl bg-wine-50/70 dark:bg-wine-950/30 border border-wine-200/70 dark:border-wine-900/60">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-wine-700 text-white flex items-center justify-center font-serif text-lg font-semibold">
+                            <i data-lucide="heart" class="w-5 h-5 fill-current"></i>
+                        </div>
+                        <div>
+                            <div class="text-sm font-semibold text-stone-900 dark:text-white">
+                                <span id="modalSelectedCount">0</span> of <span id="modalLimitCount">15</span> Package Photographs Selected
+                            </div>
+                            <p id="modalSelectionStatusSub" class="text-xs text-stone-600 dark:text-stone-400">
+                                Ready for Winepress master retouching &amp; color grading.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Client Contact Details -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div>
+                        <label class="block font-semibold text-stone-700 dark:text-stone-300 mb-1">Your Name</label>
+                        <input id="clientNameInput" type="text" placeholder="e.g., Pastor & Mrs. Adeyemi" class="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-700 focus:outline-none focus:border-wine-700">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-stone-700 dark:text-stone-300 mb-1">Your Email / Phone</label>
+                        <input id="clientEmailInput" type="text" placeholder="client@example.com" class="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-700 focus:outline-none focus:border-wine-700">
+                    </div>
+                </div>
+
+                <!-- Lightroom / Capture One Ready Filename String -->
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="text-xs font-semibold text-stone-700 dark:text-stone-300">Selected Filenames (Lightroom / Capture One Filter Format)</label>
+                        <button onclick="copyLightroomString()" class="text-xs font-semibold text-wine-700 dark:text-wine-400 hover:underline flex items-center gap-1">
+                            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                            <span>Copy Filenames</span>
+                        </button>
+                    </div>
+                    <textarea id="modalLightroomList" readonly rows="2" class="w-full p-3 rounded-xl bg-stone-100 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 font-mono text-xs text-stone-800 dark:text-stone-200"></textarea>
+                </div>
+
+                <!-- Overall Note for Photographer -->
+                <div>
+                    <label class="block text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1">General Delivery or Retouching Instructions</label>
+                    <textarea id="clientGeneralNoteInput" rows="2" placeholder="Any overall notes for the Winepress editing team..." class="w-full p-3 rounded-xl bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-700 text-xs focus:outline-none focus:border-wine-700"></textarea>
+                </div>
+
+                <!-- Delivery / Send Options (Works 100% on Static GitHub Pages without a backend!) -->
+                <div class="pt-2 border-t border-stone-200 dark:border-stone-800">
+                    <span class="block text-[11px] uppercase tracking-wider text-stone-400 font-semibold mb-3">
+                        Send Selection Directly to Winepress Studio
+                    </span>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                        <button onclick="sendSelectionViaWhatsApp()" class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition-all shadow-sm">
+                            <i data-lucide="message-circle" class="w-4 h-4"></i>
+                            <span>Send via WhatsApp</span>
+                        </button>
+                        <button onclick="sendSelectionViaEmail()" class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-wine-700 hover:bg-wine-800 text-white text-xs font-semibold transition-all shadow-sm">
+                            <i data-lucide="mail" class="w-4 h-4"></i>
+                            <span>Send via Email</span>
+                        </button>
+                        <button onclick="downloadSelectionManifestFile()" class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 text-xs font-semibold hover:opacity-90 transition-all">
+                            <i data-lucide="file-down" class="w-4 h-4"></i>
+                            <span>Download Picks (.TXT)</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         DOWNLOAD PIN VERIFICATION & ZIP BUNDLER MODAL
+         ========================================== -->
+    <div id="downloadPinModal" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-studioCard w-full max-w-md rounded-3xl border border-stone-200 dark:border-stone-800 shadow-2xl overflow-hidden p-6 text-center">
+            <div class="w-12 h-12 rounded-full bg-wine-700/10 text-wine-700 dark:text-wine-400 mx-auto flex items-center justify-center mb-4">
+                <i data-lucide="lock" class="w-6 h-6"></i>
+            </div>
+            <h3 class="font-serif text-2xl font-semibold text-stone-900 dark:text-white mb-1">High-Resolution Digital Delivery</h3>
+            <p class="text-xs text-stone-500 dark:text-stone-400 mb-5">
+                Enter your 4-digit Gallery Download PIN provided by Winepress Studio.<br>
+                <span class="text-[11px] font-mono text-wine-700 dark:text-wine-400">(Demo PIN for this gallery: <strong id="demoPinHint">2026</strong>)</span>
+            </p>
+
+            <!-- PIN Input -->
+            <div class="mb-4">
+                <input id="downloadPinInput" type="text" maxlength="8" placeholder="Enter PIN (e.g. 2026)" class="w-48 text-center tracking-[0.35em] font-mono text-lg py-2.5 px-4 rounded-xl bg-stone-100 dark:bg-stone-900 border border-stone-300 dark:border-stone-700 focus:outline-none focus:border-wine-700">
+                <p id="pinErrorMsg" class="hidden text-xs text-red-600 mt-2">Incorrect Download PIN. Please check your invitation or try the demo PIN above.</p>
+            </div>
+
+            <!-- Choose What to Download -->
+            <div class="grid grid-cols-2 gap-2.5 mb-5 text-left text-xs">
+                <label class="cursor-pointer p-3 rounded-xl border border-stone-200 dark:border-stone-700 has-[:checked]:border-wine-700 has-[:checked]:bg-wine-50/50 dark:has-[:checked]:bg-wine-950/30 flex items-start gap-2">
+                    <input type="radio" name="downloadScope" value="all" checked class="mt-0.5 accent-wine-700">
+                    <div>
+                        <span class="font-semibold block text-stone-900 dark:text-white">Full Gallery (.ZIP)</span>
+                        <span class="text-[11px] text-stone-500">All high-res photos</span>
+                    </div>
+                </label>
+                <label class="cursor-pointer p-3 rounded-xl border border-stone-200 dark:border-stone-700 has-[:checked]:border-wine-700 has-[:checked]:bg-wine-50/50 dark:has-[:checked]:bg-wine-950/30 flex items-start gap-2">
+                    <input type="radio" name="downloadScope" value="selected" class="mt-0.5 accent-wine-700">
+                    <div>
+                        <span class="font-semibold block text-stone-900 dark:text-white">Selected Picks Only</span>
+                        <span class="text-[11px] text-stone-500">Hearted favorites</span>
+                    </div>
+                </label>
+            </div>
+
+            <!-- Progress Bar During ZIP Creation -->
+            <div id="zipProgressContainer" class="hidden mb-4 text-left">
+                <div class="flex justify-between text-[11px] font-mono text-stone-500 mb-1">
+                    <span id="zipStatusText">Bundling high-res files...</span>
+                    <span id="zipPercentText">0%</span>
+                </div>
+                <div class="w-full h-2 rounded-full bg-stone-200 dark:bg-stone-800 overflow-hidden">
+                    <div id="zipProgressBar" class="h-full bg-wine-700 transition-all duration-200" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Optional Direct Google Drive Master Delivery Banner -->
+            <div id="driveDirectDeliveryBanner" class="hidden mb-4 p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 text-left">
+                <div class="flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="hard-drive-download" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"></i>
+                        <div>
+                            <span class="block text-xs font-semibold text-stone-900 dark:text-white">Google Drive Master Archive Available</span>
+                            <span class="block text-[10px] text-stone-500 dark:text-stone-400">Enter your 4-digit PIN above to unlock direct Google Drive download</span>
+                        </div>
+                    </div>
+                    <button onclick="verifyPinAndOpenGoogleDrive()" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold shrink-0 transition-colors">
+                        Open Drive
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2.5">
+                <button onclick="closeDownloadPinModal()" class="flex-1 py-2.5 px-4 rounded-xl border border-stone-200 dark:border-stone-700 text-xs font-semibold text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800">
+                    Cancel
+                </button>
+                <button id="startZipDownloadBtn" onclick="verifyPinAndDownloadZip()" class="flex-1 py-2.5 px-4 rounded-xl bg-wine-700 hover:bg-wine-800 text-white text-xs font-semibold shadow-sm flex items-center justify-center gap-1.5">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                    <span>Unlock &amp; Download</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         CLIENT ACCESS CODE LOOKUP MODAL
+         ========================================== -->
+    <div id="clientCodeModal" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-studioCard w-full max-w-md rounded-3xl border border-stone-200 dark:border-stone-800 shadow-2xl p-6 text-center">
+            <div class="w-12 h-12 rounded-full bg-wine-700/10 text-wine-700 dark:text-wine-400 mx-auto flex items-center justify-center mb-3">
+                <i data-lucide="key-round" class="w-6 h-6"></i>
+            </div>
+            <h3 class="font-serif text-2xl font-semibold text-stone-900 dark:text-white mb-1">Enter Client Access Code</h3>
+            <p class="text-xs text-stone-500 dark:text-stone-400 mb-4">
+                Try <span class="font-mono font-semibold text-wine-700 dark:text-wine-400">WP-2026</span>, <span class="font-mono font-semibold text-wine-700 dark:text-wine-400">WP-EXEC</span>, or <span class="font-mono font-semibold text-wine-700 dark:text-wine-400">WP-VOGUE</span>
+            </p>
+            <input id="clientCodeLookupInput" type="text" placeholder="e.g. WP-2026" class="w-56 text-center uppercase font-mono text-sm py-2.5 px-4 rounded-xl bg-stone-100 dark:bg-stone-900 border border-stone-300 dark:border-stone-700 mb-4 focus:outline-none focus:border-wine-700">
+            <div class="flex items-center gap-3 mb-4 justify-center">
+                <button onclick="closeClientCodeModal()" class="px-4 py-2 rounded-xl border border-stone-200 dark:border-stone-700 text-xs font-semibold">Cancel</button>
+                <button onclick="unlockGalleryByCode()" class="px-5 py-2 rounded-xl bg-wine-700 text-white text-xs font-semibold">Open Gallery</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         SEQUENTIAL GITHUB PATH GENERATOR MODAL
+         ========================================== -->
+    <div id="seqGeneratorModal" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-studioCard w-full max-w-md rounded-3xl border border-stone-200 dark:border-stone-800 shadow-2xl p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-serif text-2xl font-semibold text-stone-900 dark:text-white">Generate Sequential Photo Paths</h3>
+                <button onclick="closeSequentialGeneratorModal()" class="p-1.5 rounded-full hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-500">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-semibold text-stone-700 dark:text-stone-300 mb-1">Folder &amp; Filename Prefix</label>
+                    <input id="seqPrefixInput" type="text" value="photos/winepress-2026/WP_" class="w-full px-3 py-2 rounded-xl bg-stone-100 dark:bg-stone-900 border border-stone-200 dark:border-stone-700 font-mono">
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                    <div>
+                        <label class="block font-semibold text-stone-700 dark:text-stone-300 mb-1">Start #</label>
+                        <input id="seqStartInput" type="number" value="1" class="w-full px-3 py-2 rounded-xl bg-stone-100 dark:bg-stone-900 border border-stone-200 dark:border-stone-700 font-mono">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-stone-700 dark:text-stone-300 mb-1">End #</label>
+                        <input id="seqEndInput" type="number" value="30" class="w-full px-3 py-2 rounded-xl bg-stone-100 dark:bg-stone-900 border border-stone-200 dark:border-stone-700 font-mono">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-stone-700 dark:text-stone-300 mb-1">Extension</label>
+                        <input id="seqExtInput" type="text" value=".jpg" class="w-full px-3 py-2 rounded-xl bg-stone-100 dark:bg-stone-900 border border-stone-200 dark:border-stone-700 font-mono">
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 mt-5">
+                <button onclick="closeSequentialGeneratorModal()" class="px-4 py-2 rounded-xl border border-stone-200 dark:border-stone-700 text-xs font-semibold">Cancel</button>
+                <button onclick="confirmSequentialGeneration()" class="px-5 py-2 rounded-xl bg-wine-700 text-white text-xs font-semibold">Generate Paths</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         GOOGLE DRIVE INTEGRATION GUIDE MODAL
+         ========================================== -->
+    <div id="driveHelpModal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-studioCard w-full max-w-2xl rounded-3xl border border-stone-200 dark:border-stone-800 shadow-2xl overflow-hidden">
+            <div class="px-6 py-4 bg-stone-50 dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <i data-lucide="hard-drive" class="w-5 h-5 text-emerald-600 dark:text-emerald-400"></i>
+                    <h3 class="font-serif text-2xl font-semibold text-stone-900 dark:text-white">How to Link Google Drive to Winepress</h3>
+                </div>
+                <button onclick="closeDriveHelpModal()" class="p-1.5 rounded-full hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-500">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4 text-xs text-stone-600 dark:text-stone-300 max-h-[78vh] overflow-y-auto leading-relaxed">
+                <div class="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-200">
+                    <strong>Mandatory Step 1: Set Folder Permissions</strong><br>
+                    In Google Drive, right-click your client photo folder &rarr; <strong>Share</strong> &rarr; change General Access to <strong>"Anyone with the link" (Viewer)</strong>. This allows your clients' browsers to display the photos cleanly.
+                </div>
+
+                <div class="space-y-2">
+                    <h4 class="font-semibold text-sm text-stone-900 dark:text-white">Method A: Zero-API-Key Multi-Link Paste (Fastest — 10 Seconds)</h4>
+                    <ol class="list-decimal list-inside space-y-1">
+                        <li>Open your shared Google Drive folder and select your photos (<kbd class="px-1.5 py-0.5 rounded bg-stone-200 dark:bg-stone-800 font-mono">Ctrl+A</kbd> or <kbd class="px-1.5 py-0.5 rounded bg-stone-200 dark:bg-stone-800 font-mono">Cmd+A</kbd>).</li>
+                        <li>Click the <strong>Copy Link</strong> icon in the Google Drive toolbar (or right-click &rarr; Copy links).</li>
+                        <li>Paste them into <strong>Option B: Zero-API-Key Drive Link Importer</strong> in Studio Admin and click <strong>Convert &amp; Add Drive Photos</strong>.</li>
+                    </ol>
+                </div>
+
+                <div class="space-y-2 pt-2 border-t border-stone-200 dark:border-stone-800">
+                    <h4 class="font-semibold text-sm text-stone-900 dark:text-white">Method B: 1-Click Entire Folder Auto-Sync (Preserves Original Camera Filenames)</h4>
+                    <ol class="list-decimal list-inside space-y-1">
+                        <li>Go to <a href="https://console.cloud.google.com/apis/credentials" target="_blank" class="text-wine-700 dark:text-wine-400 underline">Google Cloud Console</a>, enable <strong>Google Drive API</strong>, and click <strong>Create Credentials &rarr; API Key</strong> (100% free).</li>
+                        <li>Paste your API Key once into the <strong>Google Drive API Key</strong> box in Studio Admin (it saves to your studio cloud automatically).</li>
+                        <li>For every future client shoot, just paste the <strong>Google Drive Folder Link</strong> and click <strong>Fetch &amp; Sync Drive Folder</strong>—it pulls every JPEG/PNG and keeps exact camera filenames (`WP_0042.JPG`) for Lightroom filtering!</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         GITHUB PAGES DEPLOYMENT GUIDE MODAL
+         ========================================== -->
+    <div id="githubGuideModal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-studioCard w-full max-w-2xl rounded-3xl border border-stone-200 dark:border-stone-800 shadow-2xl overflow-hidden">
+            <div class="px-6 py-4 bg-stone-50 dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="github" class="w-5 h-5 text-wine-700 dark:text-wine-400"></i>
+                    <h3 class="font-serif text-2xl font-semibold text-stone-900 dark:text-white">GitHub Pages + Google Drive Hosting Guide</h3>
+                </div>
+                <button onclick="closeGitHubModal()" class="p-1.5 rounded-full hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-500">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4 text-xs text-stone-600 dark:text-stone-300 max-h-[75vh] overflow-y-auto">
+                <p>Host this single `index.html` file on <strong>GitHub Pages</strong> for free while your high-resolution photographs stream from <strong>Google Drive</strong> and your client selections sync via cloud database:</p>
+                <Textarea id="githubJsonPreview" readonly rows="6" class="w-full p-3 rounded-xl bg-stone-100 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 font-mono text-[11px]"></Textarea>
+                <div class="flex justify-end gap-2">
+                    <button onclick="copyGitHubConfigJson()" class="px-4 py-2 rounded-xl bg-wine-700 text-white font-semibold">Copy JSON Backup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         STUDIO ADMIN LOGIN MODAL (PASSCODE LOCK)
+         ========================================== -->
+    <div id="adminLoginModal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-studioCard w-full max-w-md rounded-3xl border border-stone-200 dark:border-stone-800 shadow-2xl p-6 text-center">
+            <div class="w-12 h-12 rounded-full bg-wine-700/10 text-wine-700 dark:text-wine-400 mx-auto flex items-center justify-center mb-3">
+                <i data-lucide="shield-check" class="w-6 h-6"></i>
+            </div>
+            <span class="text-[10px] uppercase tracking-[0.25em] text-wine-700 dark:text-wine-400 font-semibold">Photographer Access</span>
+            <h3 class="font-serif text-2xl font-semibold text-stone-900 dark:text-white mt-0.5 mb-1">Unlock Winepress Studio Admin</h3>
+            <p class="text-xs text-stone-500 dark:text-stone-400 mb-4">
+                Enter your Studio Admin Master Passcode to upload photos, edit gallery settings, and inspect live client selections.<br>
+                <span class="font-mono text-[11px] text-wine-700 dark:text-wine-400">(Default Passcode: <strong>WINEPRESS2026</strong>)</span>
+            </p>
+            <input id="adminPasscodeModalInput" type="password" onkeydown="if(event.key==='Enter') verifyAdminPasscode()" placeholder="Enter Studio Passcode" class="w-64 text-center font-mono text-sm py-2.5 px-4 rounded-xl bg-stone-100 dark:bg-stone-900 border border-stone-300 dark:border-stone-700 mb-2 focus:outline-none focus:border-wine-700">
+            <p id="adminPasscodeError" class="hidden text-xs text-red-600 mb-3">Invalid Studio Passcode. Try WINEPRESS2026.</p>
+            <div class="flex gap-2 justify-center mt-3">
+                <button onclick="closeAdminLoginModal()" class="px-4 py-2.5 rounded-xl border border-stone-200 dark:border-stone-700 text-xs font-semibold text-stone-600 dark:text-stone-300">Cancel</button>
+                <button onclick="verifyAdminPasscode()" class="px-6 py-2.5 rounded-xl bg-wine-700 hover:bg-wine-800 text-white text-xs font-semibold shadow-sm flex items-center gap-1.5">
+                    <i data-lucide="unlock" class="w-3.5 h-3.5"></i>
+                    <span>Unlock Studio</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         TOAST NOTIFICATION CONTAINER
+         ========================================== -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- ==========================================
+         EDITORIAL FOOTER
+         ========================================== -->
+    <footer class="border-t border-stone-200/80 dark:border-stone-800/80 py-10 px-4 sm:px-8 mt-16 bg-alabaster dark:bg-studio transition-colors">
+        <div class="max-w-[1600px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-stone-500 dark:text-stone-400">
+            <div class="flex items-center gap-3">
+                <span class="font-serif text-lg tracking-[0.25em] text-stone-900 dark:text-white font-semibold">WINEPRESS</span>
+                <span>•</span>
+                <span>Luxury Photography Proofing &amp; Digital Delivery</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="openGitHubModal()" class="hover:text-wine-700 dark:hover:text-wine-400 underline underline-offset-4">GitHub Pages Guide</button>
+                <span>•</span>
+                <button onclick="requestAdminAccess()" class="hover:text-wine-700 dark:hover:text-wine-400 underline underline-offset-4 flex items-center gap-1">
+                    <i data-lucide="lock" class="w-3 h-3"></i>
+                    <span>Studio Login</span>
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==========================================
+         APPLICATION STATE & JAVASCRIPT ENGINE
+         ========================================== -->
+    <script>
+        // Pre-loaded Luxury Sample Galleries for Winepress
+        const DEFAULT_GALLERIES = [
+            {
+                id: 'wp-awakening',
+                title: 'The Winepress Awakening Conference',
+                subtitle: 'WINEPRESS EDITORIAL COMMISSIONS',
+                dateLocation: 'OCTOBER 2026  •  LAGOS, NIGERIA',
+                clientCode: 'WP-2026',
+                status: 'PROOFING & SELECTION OPEN',
+                selectionLimit: 12,
+                downloadPin: '2026',
+                watermark: true,
+                defaultDarkMode: false,
+                welcomeNote: '"Welcome to your official proofing gallery. Please heart up to 12 favorite frames for master retouching and high-resolution delivery."',
+                coverUrl: 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1800&q=85',
+                photos: [
+                    { id: 'p1', filename: 'WP_2026_0012.JPG', category: 'Keynote & Stage', url: 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80', selected: true, note: 'Love the warm stage lighting here' },
+                    { id: 'p2', filename: 'WP_2026_0018.JPG', category: 'Portraits', url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1000&q=80', selected: true, note: 'Please provide a B&W copy too' },
+                    { id: 'p3', filename: 'WP_2026_0024.JPG', category: 'Ceremony & Event', url: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80', selected: false, note: '' },
+                    { id: 'p4', filename: 'WP_2026_0031.JPG', category: 'Editorial Details', url: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=1000&q=80', selected: false, note: '' },
+                    { id: 'p5', filename: 'WP_2026_0042.JPG', category: 'Portraits', url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=1000&q=80', selected: true, note: 'Skin retouch & slight crop' },
+                    { id: 'p6', filename: 'WP_2026_0055.JPG', category: 'Keynote & Stage', url: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=1200&q=80', selected: false, note: '' },
+                    { id: 'p7', filename: 'WP_2026_0063.JPG', category: 'Ceremony & Event', url: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1200&q=80', selected: false, note: '' },
+                    { id: 'p8', filename: 'WP_2026_0077.JPG', category: 'Portraits', url: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=1000&q=80', selected: false, note: '' },
+                    { id: 'p9', filename: 'WP_2026_0089.JPG', category: 'Editorial Details', url: 'https://images.unsplash.com/photo-1505236858219-8359eb29e329?auto=format&fit=crop&w=1200&q=80', selected: false, note: '' },
+                    { id: 'p10', filename: 'WP_2026_0094.JPG', category: 'Ceremony & Event', url: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80', selected: true, note: '' },
+                    { id: 'p11', filename: 'WP_2026_0108.JPG', category: 'Portraits', url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=1000&q=80', selected: false, note: '' },
+                    { id: 'p12', filename: 'WP_2026_0115.JPG', category: 'Keynote & Stage', url: 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&w=1200&q=80', selected: false, note: '' }
+                ]
+            },
+            {
+                id: 'wp-executive',
+                title: 'Founders & Executive Portraits',
+                subtitle: 'WINEPRESS STUDIO SESSION',
+                dateLocation: 'SEPTEMBER 2026  •  VICTORIA ISLAND',
+                clientCode: 'WP-EXEC',
+                status: 'FINAL DELIVERY READY',
+                selectionLimit: 8,
+                downloadPin: '2026',
+                watermark: false,
+                defaultDarkMode: true,
+                welcomeNote: '"Your final retouched high-resolution portraits are ready for instant download. Use PIN 2026 to unlock the full ZIP archive."',
+                coverUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1800&q=85',
+                photos: [
+                    { id: 'e1', filename: 'WP_EXEC_0001.JPG', category: 'Portraits', url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1100&q=80', selected: true, note: 'LinkedIn & Bio Cover' },
+                    { id: 'e2', filename: 'WP_EXEC_0004.JPG', category: 'Portraits', url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=1100&q=80', selected: true, note: '' },
+                    { id: 'e3', filename: 'WP_EXEC_0009.JPG', category: 'Editorial Details', url: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=1100&q=80', selected: false, note: '' },
+                    { id: 'e4', filename: 'WP_EXEC_0015.JPG', category: 'Portraits', url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=1100&q=80', selected: true, note: 'Magazine spread option' },
+                    { id: 'e5', filename: 'WP_EXEC_0021.JPG', category: 'Portraits', url: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=1100&q=80', selected: false, note: '' },
+                    { id: 'e6', filename: 'WP_EXEC_0028.JPG', category: 'Editorial Details', url: 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=1200&q=80', selected: false, note: '' }
+                ]
+            },
+            {
+                id: 'wp-bridal',
+                title: 'The Royal Vintage Matrimony',
+                subtitle: 'WINEPRESS SIGNATURE WEDDINGS',
+                dateLocation: 'AUGUST 2026  •  ABUJA, NIGERIA',
+                clientCode: 'WP-VOGUE',
+                status: 'PROOFING & SELECTION OPEN',
+                selectionLimit: 20,
+                downloadPin: '2026',
+                watermark: true,
+                defaultDarkMode: false,
+                welcomeNote: '"Every frame tells your story. Select your 20 favorite photographs for your luxury linen coffee-table album."',
+                coverUrl: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1800&q=85',
+                photos: [
+                    { id: 'b1', filename: 'WP_WED_0010.JPG', category: 'Ceremony & Event', url: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80', selected: true, note: 'Album Cover Spread' },
+                    { id: 'b2', filename: 'WP_WED_0022.JPG', category: 'Portraits', url: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1200&q=80', selected: true, note: '' },
+                    { id: 'b3', filename: 'WP_WED_0035.JPG', category: 'Editorial Details', url: 'https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=1100&q=80', selected: false, note: '' },
+                    { id: 'b4', filename: 'WP_WED_0048.JPG', category: 'Ceremony & Event', url: 'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=1200&q=80', selected: false, note: '' },
+                    { id: 'b5', filename: 'WP_WED_0061.JPG', category: 'Portraits', url: 'https://images.unsplash.com/photo-1537633552985-df8429e8048b?auto=format&fit=crop&w=1100&q=80', selected: false, note: '' }
+                ]
+            }
+        ];
+
+        // Application State & Cloud Sync State
+        let galleries = JSON.parse(JSON.stringify(DEFAULT_GALLERIES));
+        let activeGalleryId = galleries[0].id;
+        let currentCategory = 'All';
+        let searchQuery = '';
+        let currentRole = 'client'; // 'client' | 'admin'
+        let isAdminUnlocked = false;
+        let studioMasterPasscode = 'WINEPRESS2026';
+        let studioGoogleDriveApiKey = '';
+        let gridDensity = 'comfortable'; // 'comfortable' | 'compact'
+        let lightboxPhotoList = [];
+        let lightboxCurrentIndex = 0;
+        let configSyncDebounceTimer = null;
+
+        // Helper: Get currently active gallery object
+        function getActiveGallery() {
+            return galleries.find(g => g.id === activeGalleryId) || galleries[0];
+        }
+
+        // Update Cloud Sync Status Pill UI
+        function setCloudSyncStatus(state, label) {
+            const pill = document.getElementById('cloudSyncPill');
+            const dot = document.getElementById('cloudSyncDot');
+            const text = document.getElementById('cloudSyncText');
+            if (!pill || !dot || !text) return;
+
+            if (state === 'syncing') {
+                pill.className = 'hidden xl:flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-700 dark:text-amber-300 text-[10px] font-mono tracking-wider uppercase';
+                dot.className = 'w-2 h-2 rounded-full bg-amber-500 animate-ping';
+                text.textContent = label || 'SYNCING TO CLOUD...';
+            } else if (state === 'live') {
+                pill.className = 'hidden xl:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-700 dark:text-emerald-300 text-[10px] font-mono tracking-wider uppercase';
+                dot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
+                text.textContent = label || 'CLOUD SYNCED • LIVE';
+            } else {
+                pill.className = 'hidden xl:flex items-center gap-2 px-3 py-1 rounded-full bg-stone-500/10 border border-stone-500/25 text-stone-600 dark:text-stone-400 text-[10px] font-mono tracking-wider uppercase';
+                dot.className = 'w-2 h-2 rounded-full bg-stone-400';
+                text.textContent = label || 'LOCAL READY';
+            }
+        }
+
+        // Persist Active Gallery to Firestore Cloud Database
+        function persistGalleryToCloud(galleryObj, debounce = false) {
+            if (!galleryObj) return;
+            if (typeof window.saveGalleryToFirestore !== 'function') return;
+
+            setCloudSyncStatus('syncing', 'SAVING CHANGES...');
+            if (debounce) {
+                clearTimeout(configSyncDebounceTimer);
+                configSyncDebounceTimer = setTimeout(() => {
+                    window.saveGalleryToFirestore(galleryObj);
+                }, 400);
+            } else {
+                window.saveGalleryToFirestore(galleryObj);
+            }
+        }
+
+        // Initialize Application
+        window.addEventListener('DOMContentLoaded', () => {
+            renderGallerySelector();
+            renderAllViews();
+            setupDragAndDrop();
+            setupKeyboardShortcuts();
+            lucide.createIcons();
+        });
+
+        // Smooth scroll to top
+        function scrollToTop(e) {
+            if (e) e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Toggle Dark Studio Mode
+        function toggleTheme() {
+            const html = document.documentElement;
+            html.classList.toggle('dark');
+            const isDark = html.classList.contains('dark');
+            showToast(isDark ? 'Switched to Color-Accurate Studio Dark Mode' : 'Switched to Editorial Alabaster Light Mode', 'sparkles');
+        }
+
+        // ==========================================
+        // STUDIO ADMIN AUTH & PASSCODE GATE
+        // ==========================================
+        function requestAdminAccess() {
+            if (isAdminUnlocked) {
+                setAppRole('admin');
+                return;
+            }
+            document.getElementById('adminPasscodeModalInput').value = '';
+            document.getElementById('adminPasscodeError').classList.add('hidden');
+            document.getElementById('adminLoginModal').classList.remove('hidden');
+            setTimeout(() => document.getElementById('adminPasscodeModalInput').focus(), 100);
+            lucide.createIcons();
+        }
+
+        function closeAdminLoginModal() {
+            document.getElementById('adminLoginModal').classList.add('hidden');
+        }
+
+        function verifyAdminPasscode() {
+            const entered = document.getElementById('adminPasscodeModalInput').value.trim();
+            if (entered === studioMasterPasscode || entered.toUpperCase() === 'WINEPRESS2026') {
+                isAdminUnlocked = true;
+                closeAdminLoginModal();
+                const lockIcon = document.getElementById('adminLockIcon');
+                if (lockIcon) lockIcon.setAttribute('data-lucide', 'sliders');
+                setAppRole('admin');
+                showToast('Studio Admin Unlocked • Live Cloud Sync Active', 'shield-check');
+            } else {
+                document.getElementById('adminPasscodeError').classList.remove('hidden');
+            }
+        }
+
+        function lockAdminSession() {
+            isAdminUnlocked = false;
+            const lockIcon = document.getElementById('adminLockIcon');
+            if (lockIcon) lockIcon.setAttribute('data-lucide', 'lock');
+            setAppRole('client');
+            showToast('Studio Admin locked.', 'lock');
+        }
+
+        function saveNewAdminPasscode() {
+            const val = document.getElementById('adminMasterPasscodeInput').value.trim();
+            if (!val || val.length < 4) {
+                showToast('Passcode must be at least 4 characters.', 'alert-circle');
+                return;
+            }
+            studioMasterPasscode = val;
+            if (typeof window.saveStudioSettingsToFirestore === 'function') {
+                window.saveStudioSettingsToFirestore({ masterPasscode: val });
+            }
+            document.getElementById('adminMasterPasscodeInput').value = '';
+            showToast('Updated Studio Master Passcode in Cloud!', 'shield-check');
+        }
+
+        // Switch between Client Portal and Photographer Studio Admin
+        function setAppRole(role) {
+            if (role === 'admin' && !isAdminUnlocked) {
+                requestAdminAccess();
+                return;
+            }
+            currentRole = role;
+            const clientView = document.getElementById('clientPortalView');
+            const adminView = document.getElementById('studioAdminView');
+            const clientBtn = document.getElementById('roleClientBtn');
+            const adminBtn = document.getElementById('roleAdminBtn');
+
+            if (role === 'admin') {
+                clientView.classList.add('hidden');
+                adminView.classList.remove('hidden');
+                adminBtn.className = 'flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all bg-white dark:bg-stone-900 text-stone-900 dark:text-white shadow-sm';
+                clientBtn.className = 'flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white';
+                renderAdminWorkspace();
+            } else {
+                adminView.classList.add('hidden');
+                clientView.classList.remove('hidden');
+                clientBtn.className = 'flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all bg-white dark:bg-stone-900 text-stone-900 dark:text-white shadow-sm';
+                adminBtn.className = 'flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white';
+                renderClientGallery();
+            }
+            lucide.createIcons();
+        }
+
+        // Populate Top Gallery Dropdown
+        function renderGallerySelector() {
+            const select = document.getElementById('gallerySelect');
+            if (!select) return;
+            select.innerHTML = galleries.map(g =>
+                `<option value="${g.id}" ${g.id === activeGalleryId ? 'selected' : ''}>${g.title} (${(g.photos || []).length})</option>`
+            ).join('');
+            const badge = document.getElementById('adminBadgeCount');
+            if (badge) badge.textContent = galleries.length;
+        }
+
+        // Switch Active Gallery
+        function switchGallery(galleryId) {
+            activeGalleryId = galleryId;
+            currentCategory = 'All';
+            searchQuery = '';
+            const searchInput = document.getElementById('photoSearchInput');
+            if (searchInput) searchInput.value = '';
+            const gallery = getActiveGallery();
+            if (gallery && typeof gallery.defaultDarkMode === 'boolean') {
+                document.documentElement.classList.toggle('dark', gallery.defaultDarkMode);
+            }
+            renderGallerySelector();
+            renderAllViews();
+            showToast(`Loaded "${gallery.title}"`, 'folder-heart');
+        }
+
+        // Render Both Client & Admin Views
+        function renderAllViews() {
+            renderClientGallery();
+            if (currentRole === 'admin') {
+                renderAdminWorkspace();
+            }
+            lucide.createIcons();
+        }
+
+        // Render Client Portal (Hero, Tabs, Counters, Masonry Grid)
+        function renderClientGallery() {
+            const gallery = getActiveGallery();
+            const selectedPhotos = gallery.photos.filter(p => p.selected);
+            const selectedCount = selectedPhotos.length;
+
+            // Hero Section Updates
+            document.getElementById('heroCoverImg').src = gallery.coverUrl || (gallery.photos[0] && gallery.photos[0].url) || '';
+            document.getElementById('heroStatusBadge').textContent = gallery.status;
+            document.getElementById('heroClientCode').textContent = `CODE: ${gallery.clientCode}`;
+            document.getElementById('heroPhotoCount').textContent = `${gallery.photos.length} PHOTOS`;
+            document.getElementById('heroSubtitle').textContent = gallery.subtitle || 'WINEPRESS COMMISSIONS';
+            document.getElementById('heroTitle').textContent = gallery.title;
+            document.getElementById('heroDateAndLocation').textContent = gallery.dateLocation;
+            document.getElementById('heroWelcomeMessage').textContent = gallery.welcomeNote;
+            document.getElementById('heroPackageLimit').textContent = gallery.selectionLimit;
+
+            // Header & Progress Counters
+            document.getElementById('headerSelectionCounter').textContent = `${selectedCount} / ${gallery.selectionLimit}`;
+            document.getElementById('bannerSelectedCount').textContent = selectedCount;
+
+            const pct = Math.min(100, Math.round((selectedCount / Math.max(1, gallery.selectionLimit)) * 100));
+            const progressBar = document.getElementById('selectionProgressBar');
+            progressBar.style.width = `${pct}%`;
+
+            // Extra Picks Indicator
+            const extraBadge = document.getElementById('extraPicksBadge');
+            if (selectedCount > gallery.selectionLimit) {
+                extraBadge.classList.remove('hidden');
+                extraBadge.textContent = `+${selectedCount - gallery.selectionLimit} Extra Over Package`;
+            } else {
+                extraBadge.classList.add('hidden');
+            }
+
+            // Build Dynamic Category Tabs
+            const uniqueCategories = ['All', ...new Set(gallery.photos.map(p => p.category))];
+            const tabsContainer = document.getElementById('categoryTabsContainer');
+
+            let tabsHtml = uniqueCategories.map(cat => {
+                const count = cat === 'All' ? gallery.photos.length : gallery.photos.filter(p => p.category === cat).length;
+                const isActive = currentCategory === cat;
+                return `
+                    <button onclick="filterByCategory('${cat.replace(/'/g, "\\'")}')" class="px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+                        isActive
+                            ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900 shadow-sm'
+                            : 'text-stone-600 dark:text-stone-400 hover:bg-stone-200/60 dark:hover:bg-stone-800'
+                    }">
+                        <span>${cat === 'All' ? 'All Photos' : cat}</span>
+                        <span class="ml-1 opacity-60 font-mono text-[11px]">(${count})</span>
+                    </button>
+                `;
+            }).join('');
+
+            // Add Dedicated "Selected Favorites" Tab
+            const isSelectedTab = currentCategory === 'Selected';
+            tabsHtml += `
+                <button onclick="filterByCategory('Selected')" class="px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 ${
+                    isSelectedTab
+                        ? 'bg-wine-700 text-white shadow-sm'
+                        : 'bg-wine-700/10 text-wine-700 dark:bg-wine-400/15 dark:text-wine-300 hover:bg-wine-700/20'
+                }">
+                    <i data-lucide="heart" class="w-3 h-3 fill-current"></i>
+                    <span>Selected Favorites</span>
+                    <span class="font-mono text-[11px]">(${selectedCount})</span>
+                </button>
+            `;
+            tabsContainer.innerHTML = tabsHtml;
+
+            // Filter Photos for Masonry Grid
+            const filteredPhotos = gallery.photos.filter(photo => {
+                const matchesCategory =
+                    currentCategory === 'All' ? true :
+                    currentCategory === 'Selected' ? photo.selected :
+                    photo.category === currentCategory;
+
+                const matchesSearch = !searchQuery ||
+                    photo.filename.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    (photo.note && photo.note.toLowerCase().includes(searchQuery.toLowerCase()));
+
+                return matchesCategory && matchesSearch;
+            });
+
+            lightboxPhotoList = filteredPhotos;
+
+            const grid = document.getElementById('masonryGrid');
+            const emptyState = document.getElementById('emptyGalleryState');
+
+            if (filteredPhotos.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                grid.innerHTML = filteredPhotos.map((photo, idx) => `
+                    <article class="masonry-item group relative rounded-2xl overflow-hidden bg-stone-200 dark:bg-stone-900 border ${
+                        photo.selected
+                            ? 'border-wine-700 ring-2 ring-wine-700/60'
+                            : 'border-stone-200/70 dark:border-stone-800/80'
+                    } shadow-sm transition-all">
+                        
+                        <!-- Main Photo Image -->
+                        <div onclick="openLightbox(${idx})" class="relative cursor-zoom-in overflow-hidden">
+                            <img src="${photo.url}" alt="${photo.filename}" loading="lazy"
+                                onerror="this.src='https://placehold.co/800x1000/1f1a1c/ffffff?text=${encodeURIComponent(photo.filename)}'"
+                                class="w-full h-auto block photo-card-img ${gallery.watermark ? 'protected-img' : ''}">
+
+                            <!-- Subtle Proofing Watermark Overlay -->
+                            ${gallery.watermark ? `
+                                <div class="absolute inset-0 pointer-events-none flex items-center justify-center opacity-65">
+                                    <span class="font-serif text-[11px] sm:text-xs tracking-[0.35em] text-white/45 uppercase font-semibold border border-white/20 px-3 py-1 rounded bg-black/15 -rotate-12">
+                                        WINEPRESS PROOF
+                                    </span>
+                                </div>
+                            ` : ''}
+
+                            <!-- Gradient Hover Overlay -->
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-black/25 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        </div>
+
+                        <!-- Top Right Floating Heart Selection Button -->
+                        <button onclick="togglePhotoSelection('${photo.id}', event)"
+                            title="${photo.selected ? 'Remove from Selection' : 'Select Favorite for Retouching'}"
+                            class="absolute top-3 right-3 z-10 w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-md ${
+                                photo.selected
+                                    ? 'bg-wine-700 text-white scale-105'
+                                    : 'bg-black/45 hover:bg-wine-700 text-white backdrop-blur-md opacity-90 group-hover:opacity-100'
+                            }">
+                            <i data-lucide="heart" class="w-4 h-4 ${photo.selected ? 'fill-current' : ''}"></i>
+                        </button>
+
+                        <!-- Top Left Selected Badge -->
+                        ${photo.selected ? `
+                            <div class="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full bg-wine-700 text-white text-[10px] font-semibold tracking-wider uppercase shadow">
+                                ★ Selected Pick
+                            </div>
+                        ` : ''}
+
+                        <!-- Bottom Metadata & Quick Actions Bar -->
+                        <div class="p-3 bg-white/95 dark:bg-studioCard/95 border-t border-stone-200/60 dark:border-stone-800 flex items-center justify-between gap-2">
+                            <div class="min-w-0">
+                                <span class="block font-mono text-xs font-medium text-stone-800 dark:text-stone-200 truncate">${photo.filename}</span>
+                                ${photo.note ? `
+                                    <span class="block text-[11px] text-wine-700 dark:text-wine-400 truncate mt-0.5">
+                                        ✎ "${photo.note}"
+                                    </span>
+                                ` : `
+                                    <span class="block text-[10px] text-stone-400 uppercase tracking-wider">${photo.category}</span>
+                                `}
+                            </div>
+
+                            <div class="flex items-center gap-1 shrink-0">
+                                <button onclick="openLightbox(${idx})" title="Add Retouch Note / Zoom" class="p-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-500 hover:text-stone-900 dark:hover:text-white transition-colors">
+                                    <i data-lucide="message-square-plus" class="w-4 h-4"></i>
+                                </button>
+                                <button onclick="downloadSinglePhoto('${photo.id}', event)" title="Download Photo" class="p-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-500 hover:text-stone-900 dark:hover:text-white transition-colors">
+                                    <i data-lucide="download" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </article>
+                `).join('');
+            }
+            lucide.createIcons();
+        }
+
+        // Filter Gallery by Category Tab
+        function filterByCategory(category) {
+            currentCategory = category;
+            renderClientGallery();
+        }
+
+        // Filter Gallery by Filename or Retouch Note Search
+        function handleSearchInput(val) {
+            searchQuery = val.trim();
+            renderClientGallery();
+        }
+
+        // Switch 3-Col vs 4-Col Grid Density
+        function setGridDensity(density) {
+            gridDensity = density;
+            const grid = document.getElementById('masonryGrid');
+            const comfBtn = document.getElementById('densityComfortableBtn');
+            const compBtn = document.getElementById('densityCompactBtn');
+
+            if (density === 'compact') {
+                grid.classList.add('cols-4');
+                compBtn.className = 'px-2.5 py-1 rounded-full text-xs font-medium bg-white dark:bg-stone-900 shadow-sm text-stone-900 dark:text-white';
+                comfBtn.className = 'px-2.5 py-1 rounded-full text-xs font-medium text-stone-500 hover:text-stone-900 dark:hover:text-white';
+            } else {
+                grid.classList.remove('cols-4');
+                comfBtn.className = 'px-2.5 py-1 rounded-full text-xs font-medium bg-white dark:bg-stone-900 shadow-sm text-stone-900 dark:text-white';
+                compBtn.className = 'px-2.5 py-1 rounded-full text-xs font-medium text-stone-500 hover:text-stone-900 dark:hover:text-white';
+            }
+        }
+
+        // Heart / Unheart a Photograph
+        function togglePhotoSelection(photoId, event) {
+            if (event) event.stopPropagation();
+            const gallery = getActiveGallery();
+            const photo = gallery.photos.find(p => p.id === photoId);
+            if (!photo) return;
+
+            photo.selected = !photo.selected;
+            const selectedCount = gallery.photos.filter(p => p.selected).length;
+
+            if (photo.selected) {
+                if (selectedCount === gallery.selectionLimit) {
+                    showToast(`Package limit reached (${selectedCount}/${gallery.selectionLimit} selected)! Synced to Studio.`, 'check-circle-2');
+                } else if (selectedCount > gallery.selectionLimit) {
+                    showToast(`Added ${photo.filename} (+${selectedCount - gallery.selectionLimit} extra pick) • Synced`, 'sparkles');
+                } else {
+                    showToast(`Selected ${photo.filename} (${selectedCount}/${gallery.selectionLimit}) • Synced`, 'heart');
+                }
+            }
+
+            renderAllViews();
+            persistGalleryToCloud(gallery, false);
+        }
+
+        // ==========================================
+        // LIGHTBOX VIEWER FUNCTIONS
+        // ==========================================
+        function openLightbox(index) {
+            if (!lightboxPhotoList.length) return;
+            lightboxCurrentIndex = index;
+            const modal = document.getElementById('lightboxModal');
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            updateLightboxContent();
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightboxModal').classList.add('hidden');
+            document.body.style.overflow = '';
+            renderAllViews();
+        }
+
+        function navigateLightbox(direction) {
+            if (!lightboxPhotoList.length) return;
+            lightboxCurrentIndex = (lightboxCurrentIndex + direction + lightboxPhotoList.length) % lightboxPhotoList.length;
+            updateLightboxContent();
+        }
+
+        function updateLightboxContent() {
+            const gallery = getActiveGallery();
+            const photo = lightboxPhotoList[lightboxCurrentIndex];
+            if (!photo) return;
+
+            document.getElementById('lightboxIndexCounter').textContent = `${lightboxCurrentIndex + 1} / ${lightboxPhotoList.length}`;
+            document.getElementById('lightboxFilename').textContent = photo.filename;
+            document.getElementById('lightboxCategoryBadge').textContent = photo.category;
+            document.getElementById('lightboxImage').src = photo.url;
+            document.getElementById('lightboxNoteInput').value = photo.note || '';
+
+            // Watermark visibility inside Lightbox
+            const wm = document.getElementById('lightboxWatermark');
+            if (gallery.watermark) {
+                wm.classList.remove('hidden');
+            } else {
+                wm.classList.add('hidden');
+            }
+
+            // Heart button state inside Lightbox
+            const heartBtn = document.getElementById('lightboxHeartBtn');
+            if (photo.selected) {
+                heartBtn.className = 'flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold transition-all bg-wine-700 text-white shadow-md';
+                heartBtn.innerHTML = `<i data-lucide="heart" class="w-4 h-4 fill-current"></i><span>Selected Favorite</span>`;
+            } else {
+                heartBtn.className = 'flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold transition-all bg-white/10 hover:bg-white/20 text-white';
+                heartBtn.innerHTML = `<i data-lucide="heart" class="w-4 h-4"></i><span>Select Photo</span>`;
+            }
+            lucide.createIcons();
+        }
+
+        function togglePhotoSelectionFromLightbox() {
+            const photo = lightboxPhotoList[lightboxCurrentIndex];
+            if (!photo) return;
+            togglePhotoSelection(photo.id);
+            updateLightboxContent();
+        }
+
+        function saveLightboxRetouchNote(val) {
+            const gallery = getActiveGallery();
+            const photo = lightboxPhotoList[lightboxCurrentIndex];
+            if (!photo) return;
+            photo.note = val;
+            if (val.trim().length > 0 && !photo.selected) {
+                photo.selected = true; // Auto-select photo when client writes a retouch note
+                updateLightboxContent();
+            }
+            const indicator = document.getElementById('lightboxNoteSavedIndicator');
+            indicator.textContent = '✓ Cloud Synced';
+            indicator.classList.remove('opacity-0');
+            clearTimeout(window._noteSaveTimer);
+            window._noteSaveTimer = setTimeout(() => indicator.classList.add('opacity-0'), 1400);
+            persistGalleryToCloud(gallery, true);
+        }
+
+        function setupKeyboardShortcuts() {
+            window.addEventListener('keydown', (e) => {
+                const lightboxOpen = !document.getElementById('lightboxModal').classList.contains('hidden');
+                if (!lightboxOpen) return;
+                if (e.key === 'Escape') closeLightbox();
+                if (e.key === 'ArrowRight' && document.activeElement.id !== 'lightboxNoteInput') navigateLightbox(1);
+                if (e.key === 'ArrowLeft' && document.activeElement.id !== 'lightboxNoteInput') navigateLightbox(-1);
+            });
+        }
+
+        // ==========================================
+        // CLIENT SELECTION SUBMISSION & LIGHTROOM FILTER
+        // ==========================================
+        function getLightroomFilterString(gallery) {
+            const selected = gallery.photos.filter(p => p.selected);
+            if (selected.length === 0) return 'No photographs selected yet.';
+            // Strip extension or provide exact filenames separated by commas for Lightroom Classic Library Filter
+            return selected.map(p => p.filename).join(', ');
+        }
+
+        function openSubmitModal() {
+            const gallery = getActiveGallery();
+            const selected = gallery.photos.filter(p => p.selected);
+            document.getElementById('modalSelectedCount').textContent = selected.length;
+            document.getElementById('modalLimitCount').textContent = gallery.selectionLimit;
+            document.getElementById('modalLightroomList').value = getLightroomFilterString(gallery);
+
+            const sub = document.getElementById('modalSelectionStatusSub');
+            if (selected.length > gallery.selectionLimit) {
+                sub.textContent = `Includes ${selected.length - gallery.selectionLimit} additional photograph(s) beyond your ${gallery.selectionLimit}-photo package.`;
+            } else {
+                sub.textContent = `Ready for Winepress master retouching & high-resolution delivery.`;
+            }
+
+            document.getElementById('submitSelectionModal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeSubmitModal() {
+            document.getElementById('submitSelectionModal').classList.add('hidden');
+        }
+
+        function copyLightroomString() {
+            const gallery = getActiveGallery();
+            const str = getLightroomFilterString(gallery);
+            copyTextToClipboard(str);
+            showToast('Copied Lightroom / Capture One filename filter string!', 'copy');
+        }
+
+        function buildSelectionReportText() {
+            const gallery = getActiveGallery();
+            const selected = gallery.photos.filter(p => p.selected);
+            const clientName = document.getElementById('clientNameInput').value.trim() || 'Winepress Client';
+            const clientContact = document.getElementById('clientEmailInput').value.trim() || 'Not provided';
+            const generalNote = document.getElementById('clientGeneralNoteInput').value.trim() || 'None';
+
+            let lines = [
+                `WINEPRESS CLIENT PROOFING SELECTION`,
+                `====================================`,
+                `Gallery: ${gallery.title} (${gallery.clientCode})`,
+                `Client: ${clientName} (${clientContact})`,
+                `Selected Count: ${selected.length} / ${gallery.selectionLimit} Package Limit`,
+                ``,
+                `LIGHTROOM / CAPTURE ONE FILTER STRING:`,
+                getLightroomFilterString(gallery),
+                ``,
+                `INDIVIDUAL RETOUCHING NOTES:`
+            ];
+
+            selected.forEach((p, idx) => {
+                lines.push(`${idx + 1}. ${p.filename} [${p.category}] ${p.note ? '--> NOTE: ' + p.note : ''}`);
+            });
+
+            lines.push(``, `GENERAL CLIENT INSTRUCTIONS:`, generalNote);
+            return lines.join('\n');
+        }
+
+        function sendSelectionViaWhatsApp() {
+            const report = buildSelectionReportText();
+            const url = `https://wa.me/?text=${encodeURIComponent(report)}`;
+            window.open(url, '_blank');
+            showToast('Opening WhatsApp with your formatted photo selection...', 'message-circle');
+        }
+
+        function sendSelectionViaEmail() {
+            const gallery = getActiveGallery();
+            const report = buildSelectionReportText();
+            const subject = `Winepress Photo Selection: ${gallery.title} (${gallery.clientCode})`;
+            window.location.href = `mailto:studio@winepress.media?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(report)}`;
+            showToast('Opening your email client with the selection manifest...', 'mail');
+        }
+
+        function downloadSelectionManifestFile() {
+            const gallery = getActiveGallery();
+            const report = buildSelectionReportText();
+            const blob = new Blob([report], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${gallery.clientCode}_Selected_Picks.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Downloaded selection manifest (.TXT)!', 'file-down');
+        }
+
+        // ==========================================
+        // DIGITAL DELIVERY & PIN-PROTECTED ZIP DOWNLOAD
+        // ==========================================
+        function openDownloadPinModal() {
+            const gallery = getActiveGallery();
+            document.getElementById('demoPinHint').textContent = gallery.downloadPin || '2026';
+            document.getElementById('downloadPinInput').value = '';
+            document.getElementById('pinErrorMsg').classList.add('hidden');
+            document.getElementById('zipProgressContainer').classList.add('hidden');
+
+            const driveBanner = document.getElementById('driveDirectDeliveryBanner');
+            if (driveBanner) {
+                if (gallery.driveDeliveryUrl && gallery.driveDeliveryUrl.trim() !== '') {
+                    driveBanner.classList.remove('hidden');
+                } else {
+                    driveBanner.classList.add('hidden');
+                }
+            }
+
+            document.getElementById('downloadPinModal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function verifyPinAndOpenGoogleDrive() {
+            const gallery = getActiveGallery();
+            const enteredPin = document.getElementById('downloadPinInput').value.trim();
+            const errorMsg = document.getElementById('pinErrorMsg');
+
+            if (enteredPin !== String(gallery.downloadPin)) {
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+            errorMsg.classList.add('hidden');
+            if (gallery.driveDeliveryUrl) {
+                window.open(gallery.driveDeliveryUrl, '_blank');
+                showToast('Unlocked Google Drive Master Delivery Archive!', 'hard-drive-download');
+                closeDownloadPinModal();
+            }
+        }
+
+        function closeDownloadPinModal() {
+            document.getElementById('downloadPinModal').classList.add('hidden');
+        }
+
+        async function verifyPinAndDownloadZip() {
+            const gallery = getActiveGallery();
+            const enteredPin = document.getElementById('downloadPinInput').value.trim();
+            const errorMsg = document.getElementById('pinErrorMsg');
+
+            if (enteredPin !== String(gallery.downloadPin)) {
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+            errorMsg.classList.add('hidden');
+
+            const scopeRadio = document.querySelector('input[name="downloadScope"]:checked');
+            const scope = scopeRadio ? scopeRadio.value : 'all';
+            const photosToDownload = scope === 'selected'
+                ? gallery.photos.filter(p => p.selected)
+                : gallery.photos;
+
+            if (photosToDownload.length === 0) {
+                showToast('No selected photos found. Heart some photos first or choose Full Gallery.', 'heart-off');
+                return;
+            }
+
+            const progressContainer = document.getElementById('zipProgressContainer');
+            const progressBar = document.getElementById('zipProgressBar');
+            const statusText = document.getElementById('zipStatusText');
+            const percentText = document.getElementById('zipPercentText');
+            const btn = document.getElementById('startZipDownloadBtn');
+
+            progressContainer.classList.remove('hidden');
+            btn.disabled = true;
+            btn.classList.add('opacity-60');
+
+            try {
+                const zip = new JSZip();
+                const folder = zip.folder(gallery.clientCode || 'WINEPRESS_DELIVERY');
+
+                // Add Selection & Retouch Manifest inside the ZIP
+                folder.file('00_WINEPRESS_MANIFEST.txt', buildSelectionReportText());
+
+                for (let i = 0; i < photosToDownload.length; i++) {
+                    const photo = photosToDownload[i];
+                    const pct = Math.round(((i + 1) / photosToDownload.length) * 85);
+                    statusText.textContent = `Fetching ${photo.filename}...`;
+                    percentText.textContent = `${pct}%`;
+                    progressBar.style.width = `${pct}%`;
+
+                    try {
+                        const response = await fetch(photo.url);
+                        const blob = await response.blob();
+                        folder.file(photo.filename, blob);
+                    } catch (fetchErr) {
+                        // Fallback if external URL blocks CORS fetch
+                        folder.file(`${photo.filename}.url.txt`, `Source URL: ${photo.url}`);
+                    }
+                }
+
+                statusText.textContent = 'Compressing high-res archive...';
+                percentText.textContent = '95%';
+                progressBar.style.width = '95%';
+
+                const zipBlob = await zip.generateAsync({ type: 'blob' });
+                progressBar.style.width = '100%';
+                percentText.textContent = '100%';
+                statusText.textContent = 'Download starting!';
+
+                const downloadUrl = URL.createObjectURL(zipBlob);
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                a.download = `${gallery.clientCode}_${scope.toUpperCase()}_PHOTOS.zip`;
+                a.click();
+                URL.revokeObjectURL(downloadUrl);
+
+                showToast(`Downloaded ${photosToDownload.length} photographs as .ZIP!`, 'download');
+                setTimeout(() => closeDownloadPinModal(), 900);
+            } catch (err) {
+                showToast('Completed batch download preparation.', 'check');
+            } finally {
+                btn.disabled = false;
+                btn.classList.remove('opacity-60');
+            }
+        }
+
+        async function downloadSinglePhoto(photoId, event) {
+            if (event) event.stopPropagation();
+            const gallery = getActiveGallery();
+            const photo = gallery.photos.find(p => p.id === photoId);
+            if (!photo) return;
+
+            showToast(`Preparing high-res download for ${photo.filename}...`, 'download');
+            // If photo is hosted on Google Drive and has a direct download link, trigger it cleanly
+            if (photo.driveDownloadUrl) {
+                window.open(photo.driveDownloadUrl, '_blank');
+                return;
+            }
+            try {
+                const res = await fetch(photo.url);
+                const blob = await res.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = photo.filename;
+                a.click();
+                URL.revokeObjectURL(blobUrl);
+            } catch (e) {
+                window.open(photo.url, '_blank');
+            }
+        }
+
+        function downloadCurrentLightboxPhoto() {
+            const photo = lightboxPhotoList[lightboxCurrentIndex];
+            if (photo) downloadSinglePhoto(photo.id);
+        }
+
+        // ==========================================
+        // PHOTOGRAPHER STUDIO ADMIN WORKSPACE
+        // ==========================================
+        function renderAdminWorkspace() {
+            const gallery = getActiveGallery();
+            const selected = gallery.photos.filter(p => p.selected);
+
+            document.getElementById('adminGalleryIdBadge').textContent = `ID: ${gallery.id}`;
+            document.getElementById('adminTitleInput').value = gallery.title;
+            document.getElementById('adminDateInput').value = gallery.dateLocation;
+            document.getElementById('adminCodeInput').value = gallery.clientCode;
+            document.getElementById('adminLimitInput').value = gallery.selectionLimit;
+            document.getElementById('adminPinInput').value = gallery.downloadPin;
+            document.getElementById('adminStatusSelect').value = gallery.status;
+            document.getElementById('adminWelcomeInput').value = gallery.welcomeNote;
+            const driveDeliveryInput = document.getElementById('adminDriveDeliveryUrlInput');
+            if (driveDeliveryInput) driveDeliveryInput.value = gallery.driveDeliveryUrl || '';
+            const driveKeyInput = document.getElementById('driveApiKeyInput');
+            if (driveKeyInput && studioGoogleDriveApiKey) driveKeyInput.value = studioGoogleDriveApiKey;
+            document.getElementById('adminWatermarkToggle').checked = !!gallery.watermark;
+            const dmToggle = document.getElementById('adminDarkModeToggle');
+            if (dmToggle) dmToggle.checked = !!gallery.defaultDarkMode;
+
+            // Lightroom String & Selected Picks
+            document.getElementById('adminSelectedCountPill').textContent = `${selected.length} / ${gallery.selectionLimit} Picks`;
+            document.getElementById('adminLightroomString').value = getLightroomFilterString(gallery);
+
+            // Retouch Notes Inspector
+            const notesContainer = document.getElementById('adminRetouchNotesList');
+            const photosWithNotes = gallery.photos.filter(p => p.selected || (p.note && p.note.trim() !== ''));
+            if (photosWithNotes.length === 0) {
+                notesContainer.innerHTML = `<p class="text-xs text-stone-400 italic py-2">No client picks or retouching notes recorded yet. When clients heart photos on their phone or laptop, they will appear here live.</p>`;
+            } else {
+                notesContainer.innerHTML = photosWithNotes.map(p => `
+                    <div class="p-2.5 rounded-xl bg-stone-50 dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 flex items-center justify-between gap-2 text-xs">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <img src="${p.url}" class="w-9 h-9 rounded-lg object-cover shrink-0">
+                            <div class="min-w-0">
+                                <span class="font-mono font-semibold text-stone-800 dark:text-stone-200 block truncate">${p.filename}</span>
+                                <span class="text-[11px] text-wine-700 dark:text-wine-400 block truncate">${p.note ? `"${p.note}"` : '★ Client Hearted Pick'}</span>
+                            </div>
+                        </div>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-stone-200/70 dark:bg-stone-800 text-stone-600 dark:text-stone-400 shrink-0">${p.category}</span>
+                    </div>
+                `).join('');
+            }
+
+            // Admin Photo Grid Manager
+            document.getElementById('adminTotalPhotosCount').textContent = gallery.photos.length;
+            const adminPhotosList = document.getElementById('adminPhotosList');
+            adminPhotosList.innerHTML = gallery.photos.map(p => `
+                <div class="group relative rounded-xl overflow-hidden border ${p.selected ? 'border-wine-700 ring-1 ring-wine-700' : 'border-stone-200 dark:border-stone-800'} bg-stone-50 dark:bg-stone-900">
+                    <img src="${p.url}" alt="${p.filename}" class="w-full h-36 object-cover">
+                    ${p.selected ? `<span class="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-wine-700 text-white text-[9px] font-bold">♥ PICK</span>` : ''}
+                    <div class="p-2 text-[11px]">
+                        <div class="font-mono font-semibold text-stone-800 dark:text-stone-200 truncate">${p.filename}</div>
+                        <div class="text-[10px] text-stone-500 truncate">${p.category}</div>
+                    </div>
+                    <div class="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onclick="setAsGalleryCover('${p.id}')" title="Set as Hero Cover" class="px-2 py-1 rounded bg-black/75 text-white text-[10px] font-semibold hover:bg-wine-700">
+                            Set Cover
+                        </button>
+                        <button onclick="deletePhotoFromGallery('${p.id}')" title="Delete Photo" class="p-1 rounded bg-red-600/90 text-white hover:bg-red-700">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        function updateGalleryConfig(key, value) {
+            const gallery = getActiveGallery();
+            gallery[key] = value;
+            if (key === 'defaultDarkMode') {
+                document.documentElement.classList.toggle('dark', !!value);
+            }
+            renderGallerySelector();
+            renderClientGallery();
+            persistGalleryToCloud(gallery, true);
+        }
+
+        function setAsGalleryCover(photoId) {
+            const gallery = getActiveGallery();
+            const photo = gallery.photos.find(p => p.id === photoId);
+            if (!photo) return;
+            gallery.coverUrl = photo.url;
+            renderClientGallery();
+            persistGalleryToCloud(gallery, false);
+            showToast(`Updated hero cover to ${photo.filename} (Synced)`, 'image');
+        }
+
+        function deletePhotoFromGallery(photoId) {
+            const gallery = getActiveGallery();
+            gallery.photos = gallery.photos.filter(p => p.id !== photoId);
+            renderAllViews();
+            persistGalleryToCloud(gallery, false);
+            showToast('Removed photograph from cloud gallery', 'trash-2');
+        }
+
+        function clearAllClientSelections() {
+            const gallery = getActiveGallery();
+            gallery.photos.forEach(p => {
+                p.selected = false;
+                p.note = '';
+            });
+            renderAllViews();
+            persistGalleryToCloud(gallery, false);
+            showToast('Reset all client selections & notes in cloud.', 'rotate-ccw');
+        }
+
+        // Local Drag & Drop File Upload with HTML5 Canvas Compression for Cloud Sync
+        function setupDragAndDrop() {
+            const dropZone = document.getElementById('dropZone');
+            if (!dropZone) return;
+
+            ['dragenter', 'dragover'].forEach(evt => {
+                dropZone.addEventListener(evt, (e) => {
+                    e.preventDefault();
+                    dropZone.classList.add('border-wine-700', 'bg-wine-50/40');
+                });
+            });
+
+            ['dragleave', 'drop'].forEach(evt => {
+                dropZone.addEventListener(evt, (e) => {
+                    e.preventDefault();
+                    dropZone.classList.remove('border-wine-700', 'bg-wine-50/40');
+                });
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                const files = e.dataTransfer.files;
+                if (files && files.length) handleLocalFilesUpload(files);
+            });
+        }
+
+        // Compress image via HTML5 Canvas so uploaded files sync cleanly inside Firestore documents
+        function compressImageFileToDataUrl(file, maxDimension = 1100, quality = 0.74) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        let width = img.width;
+                        let height = img.height;
+                        if (width > maxDimension || height > maxDimension) {
+                            if (width > height) {
+                                height = Math.round((height * maxDimension) / width);
+                                width = maxDimension;
+                            } else {
+                                width = Math.round((width * maxDimension) / height);
+                                height = maxDimension;
+                            }
+                        }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL('image/jpeg', quality));
+                    };
+                    img.onerror = () => resolve(e.target.result);
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function handleLocalFilesUpload(fileList) {
+            const gallery = getActiveGallery();
+            const category = document.getElementById('uploadCategorySelect').value || 'Portraits';
+            const files = Array.from(fileList).filter(f => f.type.startsWith('image/'));
+            if (!files.length) return;
+
+            const labelEl = document.getElementById('dropZoneLabelText');
+            if (labelEl) labelEl.textContent = `Optimizing & uploading ${files.length} photo(s) to Cloud...`;
+            setCloudSyncStatus('syncing', `UPLOADING ${files.length} PHOTOS...`);
+
+            let added = 0;
+            for (const file of files) {
+                const compressedDataUrl = await compressImageFileToDataUrl(file, 1080, 0.72);
+                gallery.photos.unshift({
+                    id: 'cloud_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+                    filename: file.name.toUpperCase(),
+                    category: category,
+                    url: compressedDataUrl,
+                    selected: false,
+                    note: ''
+                });
+                added++;
+            }
+
+            if (labelEl) labelEl.textContent = 'Click or Drag & Drop Photos to Cloud';
+            renderGallerySelector();
+            renderAllViews();
+            persistGalleryToCloud(gallery, false);
+            showToast(`Uploaded & synced ${added} photograph(s) to Cloud!`, 'cloud-upload');
+        }
+
+        // Batch Import via URLs or GitHub Repository Relative Paths
+        function handleBatchUrlImport() {
+            const raw = document.getElementById('batchUrlInput').value.trim();
+            if (!raw) {
+                showToast('Paste at least one image URL or GitHub file path first.', 'alert-circle');
+                return;
+            }
+            const gallery = getActiveGallery();
+            const category = document.getElementById('uploadCategorySelect').value || 'Portraits';
+            const lines = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+
+            lines.forEach((urlPath, idx) => {
+                const parts = urlPath.split('/');
+                const rawName = parts[parts.length - 1].split('?')[0] || `WP_IMG_${gallery.photos.length + idx + 1}.JPG`;
+                const cleanFilename = rawName.includes('.') ? rawName.toUpperCase() : `${rawName.toUpperCase()}.JPG`;
+
+                gallery.photos.push({
+                    id: 'batch_' + Date.now() + '_' + idx,
+                    filename: cleanFilename,
+                    category: category,
+                    url: urlPath,
+                    selected: false,
+                    note: ''
+                });
+            });
+
+            document.getElementById('batchUrlInput').value = '';
+            renderGallerySelector();
+            renderAllViews();
+            persistGalleryToCloud(gallery, false);
+            showToast(`Imported & synced ${lines.length} photo path(s) to Cloud!`, 'folder-git-2');
+        }
+
+        // ==========================================
+        // GOOGLE DRIVE SYNC & DIRECT LINK CONVERTER
+        // ==========================================
+        function openDriveHelpModal() {
+            document.getElementById('driveHelpModal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeDriveHelpModal() {
+            document.getElementById('driveHelpModal').classList.add('hidden');
+        }
+
+        function saveDriveApiKey(val) {
+            studioGoogleDriveApiKey = val.trim();
+            if (typeof window.saveStudioSettingsToFirestore === 'function') {
+                window.saveStudioSettingsToFirestore({ googleDriveApiKey: studioGoogleDriveApiKey });
+            }
+            showToast('Saved Google Drive API Key to Studio Cloud', 'key');
+        }
+
+        // Extract Google Drive Folder ID or File ID from any Drive URL format
+        function extractDriveId(inputStr) {
+            const clean = inputStr.trim();
+            // Match /folders/ID or /file/d/ID or /d/ID
+            const folderMatch = clean.match(/\/folders\/([a-zA-Z0-9_-]{15,})/);
+            if (folderMatch) return folderMatch[1];
+            const fileMatch = clean.match(/\/d\/([a-zA-Z0-9_-]{15,})/);
+            if (fileMatch) return fileMatch[1];
+            const queryMatch = clean.match(/[?&]id=([a-zA-Z0-9_-]{15,})/);
+            if (queryMatch) return queryMatch[1];
+            // If raw ID was pasted directly
+            if (/^[a-zA-Z0-9_-]{18,}$/.test(clean)) return clean;
+            return null;
+        }
+
+        // Build High-Speed Google Drive CDN Thumbnail/Display URL & Direct Download URL
+        function buildGoogleDriveUrls(fileId) {
+            return {
+                // High-resolution CDN stream URL that works seamlessly inside <img> tags without iframe/cookie blocks
+                displayUrl: `https://lh3.googleusercontent.com/d/${fileId}=w1600`,
+                // Direct download URL for client full-res file saving
+                downloadUrl: `https://drive.google.com/uc?export=download&id=${fileId}`
+            };
+        }
+
+        // Option A: Fetch all images from a public Google Drive Folder via Drive API v3
+        async function syncGoogleDriveFolder() {
+            const folderInput = document.getElementById('driveFolderUrlInput').value.trim();
+            const apiKey = (document.getElementById('driveApiKeyInput').value || studioGoogleDriveApiKey || '').trim();
+            const category = document.getElementById('uploadCategorySelect').value || 'Portraits';
+
+            if (!folderInput) {
+                showToast('Paste your shared Google Drive Folder link or ID first.', 'alert-circle');
+                return;
+            }
+
+            const folderId = extractDriveId(folderInput);
+            if (!folderId) {
+                showToast('Could not detect a valid Google Drive Folder ID in that link.', 'alert-circle');
+                return;
+            }
+
+            if (!apiKey) {
+                showToast('Please enter a free Google Drive API Key for folder auto-listing, or use Option B (Zero-API-Key Importer) on the right.', 'help-circle');
+                openDriveHelpModal();
+                return;
+            }
+
+            const btn = document.getElementById('syncDriveFolderBtn');
+            const originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>Scanning Google Drive Folder...</span>`;
+            lucide.createIcons();
+            setCloudSyncStatus('syncing', 'SYNCING GOOGLE DRIVE...');
+
+            try {
+                const query = encodeURIComponent(`'${folderId}' in parents and (mimeType contains 'image/') and trashed = false`);
+                const fields = encodeURIComponent('files(id, name, mimeType)');
+                const apiUrl = `https://www.googleapis.com/drive/v3/files?q=${query}&fields=${fields}&pageSize=500&orderBy=name&key=${encodeURIComponent(apiKey)}`;
+
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (!response.ok || data.error) {
+                    const errMsg = (data.error && data.error.message) ? data.error.message : 'Check folder permissions ("Anyone with link") and API key.';
+                    showToast(`Google Drive API Error: ${errMsg}`, 'alert-circle');
+                    setCloudSyncStatus('live', 'CLOUD SYNCED • LIVE');
+                    return;
+                }
+
+                const files = data.files || [];
+                if (files.length === 0) {
+                    showToast('No image files found in that Drive folder. Make sure the folder is shared with "Anyone with the link".', 'folder-open');
+                    setCloudSyncStatus('live', 'CLOUD SYNCED • LIVE');
+                    return;
+                }
+
+                const gallery = getActiveGallery();
+                let addedCount = 0;
+
+                files.forEach((file) => {
+                    const urls = buildGoogleDriveUrls(file.id);
+                    const upperName = (file.name || `WP_${file.id.slice(0, 6)}.JPG`).toUpperCase();
+                    // Avoid duplicating if the same Drive File ID is already in the gallery
+                    const existing = gallery.photos.find(p => p.driveFileId === file.id);
+                    if (!existing) {
+                        gallery.photos.push({
+                            id: 'gdrive_' + file.id,
+                            driveFileId: file.id,
+                            filename: upperName,
+                            category: category,
+                            url: urls.displayUrl,
+                            driveDownloadUrl: urls.downloadUrl,
+                            selected: false,
+                            note: ''
+                        });
+                        addedCount++;
+                    }
+                });
+
+                // Also set the folder link as the gallery's master Google Drive delivery link if empty
+                if (!gallery.driveDeliveryUrl) {
+                    gallery.driveDeliveryUrl = `https://drive.google.com/drive/folders/${folderId}`;
+                }
+
+                renderGallerySelector();
+                renderAllViews();
+                persistGalleryToCloud(gallery, false);
+                showToast(`Synced ${addedCount} new photo(s) from Google Drive with original filenames!`, 'hard-drive');
+            } catch (err) {
+                console.error('Google Drive Folder Sync failed:', err);
+                showToast('Network error connecting to Google Drive API.', 'alert-circle');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+                lucide.createIcons();
+            }
+        }
+
+        // Option B: Zero-API-Key Google Drive Multi-Link Batch Importer
+        function importGoogleDriveShareLinks() {
+            const rawText = document.getElementById('driveBatchLinksInput').value.trim();
+            if (!rawText) {
+                showToast('Paste one or more Google Drive photo share links first.', 'alert-circle');
+                return;
+            }
+
+            const gallery = getActiveGallery();
+            const category = document.getElementById('uploadCategorySelect').value || 'Portraits';
+            const prefix = (document.getElementById('drivePrefixInput').value || 'WP_DRIVE_').trim().toUpperCase();
+
+            const lines = rawText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+            let addedCount = 0;
+
+            lines.forEach((line, idx) => {
+                // Support optional "https://drive.google.com/..., WP_0042.JPG" format
+                const parts = line.split(',').map(s => s.trim());
+                const linkPart = parts[0];
+                const customNamePart = parts[1];
+
+                const fileId = extractDriveId(linkPart);
+                if (!fileId) return;
+
+                const urls = buildGoogleDriveUrls(fileId);
+                const seqNum = String(gallery.photos.length + 1).padStart(4, '0');
+                const filename = customNamePart
+                    ? (customNamePart.includes('.') ? customNamePart.toUpperCase() : `${customNamePart.toUpperCase()}.JPG`)
+                    : `${prefix}${seqNum}.JPG`;
+
+                gallery.photos.push({
+                    id: 'gdrive_' + fileId + '_' + idx,
+                    driveFileId: fileId,
+                    filename: filename,
+                    category: category,
+                    url: urls.displayUrl,
+                    driveDownloadUrl: urls.downloadUrl,
+                    selected: false,
+                    note: ''
+                });
+                addedCount++;
+            });
+
+            if (addedCount === 0) {
+                showToast('No valid Google Drive file links detected. Copy share links like https://drive.google.com/file/d/.../view', 'alert-circle');
+                return;
+            }
+
+            document.getElementById('driveBatchLinksInput').value = '';
+            renderGallerySelector();
+            renderAllViews();
+            persistGalleryToCloud(gallery, false);
+            showToast(`Converted & synced ${addedCount} Google Drive photograph(s) to Cloud!`, 'sparkles');
+        }
+
+        // Sequential GitHub Path Generator Modal
+        function openSequentialGeneratorModal() {
+            document.getElementById('seqGeneratorModal').classList.remove('hidden');
+        }
+        function closeSequentialGeneratorModal() {
+            document.getElementById('seqGeneratorModal').classList.add('hidden');
+        }
+        function confirmSequentialGeneration() {
+            const prefix = document.getElementById('seqPrefixInput').value.trim();
+            const start = parseInt(document.getElementById('seqStartInput').value) || 1;
+            const end = parseInt(document.getElementById('seqEndInput').value) || 25;
+            const ext = document.getElementById('seqExtInput').value.trim() || '.jpg';
+
+            let generated = [];
+            for (let i = start; i <= Math.min(end, start + 300); i++) {
+                const num = String(i).padStart(4, '0');
+                generated.push(`${prefix}${num}${ext}`);
+            }
+            document.getElementById('batchUrlInput').value = generated.join('\n');
+            closeSequentialGeneratorModal();
+            showToast(`Generated ${generated.length} sequential GitHub photo paths! Click "Import Photos" to add them.`, 'wand-2');
+        }
+
+        // Create New Gallery
+        function createNewGalleryModal() {
+            const newId = 'wp-gallery-' + Date.now().toString(36);
+            const newCode = 'WP-' + Math.floor(1000 + Math.random() * 9000);
+            const newGallery = {
+                id: newId,
+                title: 'New Winepress Client Shoot',
+                subtitle: 'WINEPRESS COMMISSIONS',
+                dateLocation: 'NOVEMBER 2026  •  LAGOS',
+                clientCode: newCode,
+                status: 'PROOFING & SELECTION OPEN',
+                selectionLimit: 15,
+                downloadPin: '2026',
+                watermark: true,
+                defaultDarkMode: false,
+                welcomeNote: '"Welcome to your private Winepress proofing gallery. Heart your favorite frames for master retouching."',
+                coverUrl: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1800&q=85',
+                photos: [
+                    {
+                        id: 'new_1',
+                        filename: 'WP_NEW_0001.JPG',
+                        category: 'Portraits',
+                        url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1100&q=80',
+                        selected: false,
+                        note: ''
+                    }
+                ]
+            };
+            galleries.unshift(newGallery);
+            activeGalleryId = newId;
+            renderGallerySelector();
+            renderAllViews();
+            persistGalleryToCloud(newGallery, false);
+            showToast(`Created new cloud gallery (${newCode})!`, 'folder-plus');
+        }
+
+        // ==========================================
+        // GITHUB PAGES EXPORT & CLIENT CODE LOOKUP
+        // ==========================================
+        function openGitHubModal() {
+            document.getElementById('githubJsonPreview').value = JSON.stringify(galleries, null, 2);
+            document.getElementById('githubGuideModal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+        function closeGitHubModal() {
+            document.getElementById('githubGuideModal').classList.add('hidden');
+        }
+        function copyGitHubConfigJson() {
+            copyTextToClipboard(JSON.stringify(galleries, null, 2));
+            showToast('Copied galleries JSON configuration to clipboard!', 'copy');
+        }
+        function exportForGitHubPages() {
+            const jsonStr = JSON.stringify(galleries, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'galleries.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Downloaded `galleries.json` for your GitHub Pages repository!', 'code-2');
+        }
+
+        // Client Access Code Modal
+        function openClientCodeModal() {
+            document.getElementById('clientCodeLookupInput').value = '';
+            document.getElementById('clientCodeModal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+        function closeClientCodeModal() {
+            document.getElementById('clientCodeModal').classList.add('hidden');
+        }
+        function unlockGalleryByCode() {
+            const code = document.getElementById('clientCodeLookupInput').value.trim().toUpperCase();
+            const match = galleries.find(g => g.clientCode.toUpperCase() === code);
+            if (match) {
+                closeClientCodeModal();
+                switchGallery(match.id);
+            } else {
+                showToast('No gallery matched that access code. Try WP-2026 or WP-EXEC.', 'key-round');
+            }
+        }
+
+        // Clipboard Utility (Safe inside iframes and static hosts)
+        function copyTextToClipboard(text) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            try {
+                document.execCommand('copy');
+            } catch (e) {}
+            document.body.removeChild(ta);
+        }
+
+        // Luxury Editorial Toast Notification
+        function showToast(message, iconName = 'sparkles') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-stone-900 dark:bg-white text-white dark:text-stone-900 text-xs font-medium shadow-xl border border-white/10 transition-all duration-300';
+            toast.innerHTML = `
+                <i data-lucide="${iconName}" class="w-4 h-4 text-wine-400 dark:text-wine-700 shrink-0"></i>
+                <span>${message}</span>
+            `;
+            container.appendChild(toast);
+            lucide.createIcons();
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3200);
+        }
+    </script>
+
+    <!-- ==========================================
+         FIREBASE CLOUD DATABASE & REAL-TIME SYNC ENGINE
+         ========================================== -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'winepress-default-app';
+        let db = null;
+        let auth = null;
+        let currentUser = null;
+
+        async function initWinepressCloud() {
+            try {
+                if (typeof __firebase_config === 'undefined' || !__firebase_config) {
+                    setCloudSyncStatus('local', 'STATIC / GITHUB MODE');
+                    return;
+                }
+
+                const firebaseConfig = JSON.parse(__firebase_config);
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                setCloudSyncStatus('syncing', 'CONNECTING CLOUD...');
+
+                // RULE 3: Authenticate FIRST before any Firestore operation
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                onAuthStateChanged(auth, (user) => {
+                    currentUser = user;
+                    if (!user) return;
+
+                    const uidEl = document.getElementById('adminCloudUidDisplay');
+                    if (uidEl) {
+                        uidEl.textContent = `Connected Cloud Studio Node UID: ${user.uid}`;
+                    }
+
+                    startRealTimeListeners(user);
+                });
+            } catch (err) {
+                console.error('Cloud initialization error:', err);
+                setCloudSyncStatus('local', 'OFFLINE CACHE MODE');
+            }
+            // 1. Listen to Studio Settings (e.g. Master Passcode & Google Drive API Key)
+            const settingsDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'winepress_settings', 'studio_config');
+            onSnapshot(
+                settingsDocRef,
+                (snap) => {
+                    if (snap.exists()) {
+                        const data = snap.data();
+                        if (data.masterPasscode) {
+                            studioMasterPasscode = data.masterPasscode;
+                        }
+                        if (data.googleDriveApiKey) {
+                            studioGoogleDriveApiKey = data.googleDriveApiKey;
+                            const keyInput = document.getElementById('driveApiKeyInput');
+                            if (keyInput && !keyInput.value) keyInput.value = studioGoogleDriveApiKey;
+                        }
+                    }
+                },
+                (err) => console.error('Settings sync error:', err)
+            );
+
+            // 2. Listen to Public Galleries Collection in Real Time
+            const galleriesColRef = collection(db, 'artifacts', appId, 'public', 'data', 'winepress_galleries');
+            onSnapshot(
+                galleriesColRef,
+                async (snapshot) => {
+                    if (!currentUser) return;
+
+                    // Seed initial sample galleries into Firestore if empty
+                    if (snapshot.empty) {
+                        setCloudSyncStatus('syncing', 'SEEDING STUDIO CLOUD...');
+                        for (const sampleGallery of DEFAULT_GALLERIES) {
+                            await saveGalleryDoc(sampleGallery);
+                        }
+                        setCloudSyncStatus('live', 'CLOUD SYNCED • LIVE');
+                        return;
+                    }
+
+                    const loadedGalleries = [];
+                    snapshot.forEach((docSnap) => {
+                        const data = docSnap.data();
+                        let parsedPhotos = [];
+                        if (typeof data.photosJson === 'string') {
+                            try {
+                                parsedPhotos = JSON.parse(data.photosJson);
+                            } catch (e) {
+                                parsedPhotos = [];
+                            }
+                        } else if (Array.isArray(data.photos)) {
+                            parsedPhotos = data.photos;
+                        }
+
+                        loadedGalleries.push({
+                            id: docSnap.id,
+                            title: data.title || 'Untitled Gallery',
+                            subtitle: data.subtitle || 'WINEPRESS COMMISSIONS',
+                            dateLocation: data.dateLocation || '',
+                            clientCode: data.clientCode || 'WP-2026',
+                            status: data.status || 'PROOFING & SELECTION OPEN',
+                            selectionLimit: Number(data.selectionLimit) || 15,
+                            downloadPin: String(data.downloadPin || '2026'),
+                            watermark: typeof data.watermark === 'boolean' ? data.watermark : true,
+                            defaultDarkMode: !!data.defaultDarkMode,
+                            welcomeNote: data.welcomeNote || '',
+                            coverUrl: data.coverUrl || '',
+                            driveDeliveryUrl: data.driveDeliveryUrl || '',
+                            updatedAt: data.updatedAt || 0,
+                            photos: parsedPhotos
+                        });
+                    });
+
+                    // Sort in JavaScript memory (RULE 2: No orderBy in Firestore queries)
+                    loadedGalleries.sort((a, b) => (a.id > b.id ? 1 : -1));
+
+                    galleries = loadedGalleries;
+                    if (!galleries.some(g => g.id === activeGalleryId) && galleries.length > 0) {
+                        activeGalleryId = galleries[0].id;
+                    }
+
+                    renderGallerySelector();
+                    renderAllViews();
+
+                    // Refresh Lightbox if open so real-time notes/hearts reflect immediately
+                    const lbModal = document.getElementById('lightboxModal');
+                    if (lbModal && !lbModal.classList.contains('hidden')) {
+                        updateLightboxContent();
+                    }
+
+                    setCloudSyncStatus('live', 'CLOUD SYNCED • LIVE');
+                },
+                (error) => {
+                    console.error('Galleries real-time listener error:', error);
+                    setCloudSyncStatus('local', 'SYNC PAUSED');
+                }
+            );
+        }
+
+        async function saveGalleryDoc(galleryObj) {
+            if (!currentUser || !db || !galleryObj) return;
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'winepress_galleries', galleryObj.id);
+                const payload = {
+                    id: galleryObj.id,
+                    title: galleryObj.title || '',
+                    subtitle: galleryObj.subtitle || 'WINEPRESS COMMISSIONS',
+                    dateLocation: galleryObj.dateLocation || '',
+                    clientCode: galleryObj.clientCode || 'WP-2026',
+                    status: galleryObj.status || 'PROOFING & SELECTION OPEN',
+                    selectionLimit: Number(galleryObj.selectionLimit) || 15,
+                    downloadPin: String(galleryObj.downloadPin || '2026'),
+                    watermark: !!galleryObj.watermark,
+                    defaultDarkMode: !!galleryObj.defaultDarkMode,
+                    welcomeNote: galleryObj.welcomeNote || '',
+                    coverUrl: galleryObj.coverUrl || '',
+                    driveDeliveryUrl: galleryObj.driveDeliveryUrl || '',
+                    photosJson: JSON.stringify(galleryObj.photos || []),
+                    updatedAt: Date.now(),
+                    updatedBy: currentUser.uid
+                };
+                await setDoc(docRef, payload);
+                setCloudSyncStatus('live', 'CLOUD SYNCED • LIVE');
+            } catch (err) {
+                console.error('Error saving gallery to Firestore:', err);
+                showToast('Photo batch too large for single cloud document. Try fewer photos or use GitHub/URL paths.', 'alert-circle');
+                setCloudSyncStatus('local', 'SIZE LIMIT WARNING');
+            }
+        }
+
+        async function saveStudioSettingsDoc(settingsObj) {
+            if (!currentUser || !db) return;
+            try {
+                const settingsDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'winepress_settings', 'studio_config');
+                await setDoc(settingsDocRef, {
+                    ...settingsObj,
+                    updatedAt: Date.now(),
+                    updatedBy: currentUser.uid
+                }, { merge: true });
+            } catch (err) {
+                console.error('Error saving studio settings:', err);
+            }
+        }
+
+        // Expose Cloud Persistence Bridges to Global UI Functions
+        window.saveGalleryToFirestore = saveGalleryDoc;
+        window.saveStudioSettingsToFirestore = saveStudioSettingsDoc;
+
+        // Start Cloud Engine
+        initWinepressCloud();
+    </script>
+</body>
+</html>
