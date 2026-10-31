@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en" class="dark scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WINEPRESS — Client Galleries, Proofing & Digital Delivery</title>
+    <title>WINEPRESS — Luxury Client Galleries, Proofing & Digital Delivery</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Cormorant Garamond for Luxury Editorial Headings, Plus Jakarta Sans for UI, JetBrains Mono for Filenames -->
+    <!-- Google Fonts: Bodoni Moda (High-Fashion Editorial Serif), Syne (Avant-Garde Display), Plus Jakarta Sans (Ultra-Clean UI), JetBrains Mono (Technical Filenames) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;0,6..96,700;1,6..96,400;1,6..96,600&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Syne:wght@500;600;700&display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- JSZip for Real Client-Side ZIP Bundling of Delivered Photos -->
@@ -22,24 +22,33 @@
                 extend: {
                     colors: {
                         wine: {
-                            50: '#fcf6f7',
-                            100: '#f8ebed',
-                            200: '#f1d7db',
-                            300: '#e5b5bd',
-                            400: '#d48896',
-                            500: '#be5d70',
-                            600: '#9e3b50',
-                            700: '#722F37', // Primary Winepress Burgundy
-                            800: '#5E1914', // Deep Winepress Reserve
-                            900: '#4a1512',
-                            950: '#2b0908',
+                            50: '#fdf3f5',
+                            100: '#fbe6ea',
+                            200: '#f6ced7',
+                            300: '#eea5b6',
+                            400: '#e26f8b',
+                            500: '#cf3c61',
+                            600: '#A92642', // Crimson Wine Glow
+                            700: '#8C1D35', // Velvet Burgundy
+                            800: '#6B0F24', // Imperial Wine / Oxblood
+                            900: '#490918', // Deep Reserve Wine
+                            950: '#28030B', // Blackened Bordeaux
                         },
-                        alabaster: '#FAF8F5',
-                        studio: '#111111',
-                        studioCard: '#1A1A1A'
+                        obsidian: {
+                            DEFAULT: '#070506', // Primary Obsidian Black
+                            surface: '#0F0A0C', // Elevated Wine-Black Surface
+                            card: '#160D10',    // Luxury Card Surface
+                            border: '#2A161D'   // Subtle Wine Hairline
+                        },
+                        alabaster: '#FAF7F8',
+                        champagne: '#C8BCC0',
+                        pewter: '#7D6B71',
+                        studio: '#070506',
+                        studioCard: '#120A0D'
                     },
                     fontFamily: {
-                        serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+                        serif: ['"Bodoni Moda"', 'Georgia', 'serif'],
+                        display: ['"Syne"', 'sans-serif'],
                         sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
                         mono: ['"JetBrains Mono"', 'monospace'],
                     }
@@ -49,26 +58,49 @@
     </script>
 
     <style>
-        /* Custom Editorial Scrollbars & Masonry Polish */
+        /* Custom Luxury Wine & Obsidian Scrollbars */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
         }
         ::-webkit-scrollbar-track {
-            background: transparent;
+            background: #070506;
         }
         ::-webkit-scrollbar-thumb {
-            background: rgba(114, 47, 55, 0.3);
+            background: rgba(169, 38, 66, 0.45);
             border-radius: 9999px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: rgba(114, 47, 55, 0.6);
+            background: rgba(169, 38, 66, 0.8);
+        }
+
+        /* Ambient Wine Atmospheric Glow */
+        .wine-ambient-bg {
+            background-color: #070506;
+            background-image: 
+                radial-gradient(circle at 15% 0%, rgba(140, 29, 53, 0.18) 0%, transparent 45%),
+                radial-gradient(circle at 85% 15%, rgba(107, 15, 36, 0.14) 0%, transparent 50%),
+                radial-gradient(circle at 50% 100%, rgba(140, 29, 53, 0.12) 0%, transparent 55%);
+        }
+
+        /* Expensive Champagne-to-Alabaster Metallic Headline Gradient */
+        .luxury-headline-gradient {
+            background: linear-gradient(135deg, #FFFFFF 0%, #FAF7F8 45%, #E5C3CC 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Luxury Glassmorphism Wine Card */
+        .wine-glass-card {
+            background: linear-gradient(180deg, rgba(22, 13, 16, 0.88) 0%, rgba(12, 7, 9, 0.94) 100%);
+            border: 1px solid rgba(169, 38, 66, 0.24);
+            box-shadow: 0 20px 50px -15px rgba(0, 0, 0, 0.85), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
         }
 
         /* Masonry Grid Layout */
         .masonry-grid {
             column-count: 1;
-            column-gap: 1.25rem;
+            column-gap: 1.5rem;
         }
         @media (min-width: 640px) {
             .masonry-grid { column-count: 2; }
@@ -81,7 +113,7 @@
         }
         .masonry-item {
             break-inside: avoid;
-            margin-bottom: 1.25rem;
+            margin-bottom: 1.5rem;
         }
 
         /* Proofing Watermark Pattern */
@@ -90,17 +122,17 @@
                 -35deg,
                 transparent,
                 transparent 80px,
-                rgba(255, 255, 255, 0.04) 80px,
-                rgba(255, 255, 255, 0.04) 160px
+                rgba(169, 38, 66, 0.05) 80px,
+                rgba(169, 38, 66, 0.05) 160px
             );
         }
 
         /* Smooth image reveal */
         .photo-card-img {
-            transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
+            transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
         }
         .group:hover .photo-card-img {
-            transform: scale(1.025);
+            transform: scale(1.03);
         }
 
         /* Disable right-click drag on proof images when watermark is active */
@@ -108,91 +140,95 @@
             -webkit-user-drag: none;
             user-select: none;
         }
-
-        @keyframes pulseSubtle {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.65; }
-        }
-        .animate-pulse-subtle {
-            animation: pulseSubtle 2.5s infinite ease-in-out;
-        }
     </style>
 </head>
-<body class="bg-alabaster text-stone-900 dark:bg-studio dark:text-stone-100 font-sans antialiased selection:bg-wine-700 selection:text-white transition-colors duration-300 min-h-screen flex flex-col">
+<body class="bg-alabaster text-stone-900 dark:bg-obsidian dark:text-alabaster wine-ambient-bg font-sans antialiased selection:bg-wine-700 selection:text-white transition-colors duration-500 min-h-screen flex flex-col">
 
     <!-- ==========================================
          TOP STUDIO & ROLE NAVIGATION BAR
          ========================================== -->
-    <header class="sticky top-0 z-40 backdrop-blur-md bg-alabaster/90 dark:bg-studio/90 border-b border-stone-200/80 dark:border-stone-800/80 transition-colors">
-        <div class="max-w-[1600px] mx-auto px-4 sm:px-8 h-16 flex items-center justify-between gap-3">
+    <header class="sticky top-0 z-40 backdrop-blur-xl bg-white/90 dark:bg-[#070506]/85 border-b border-stone-200/80 dark:border-wine-900/50 transition-colors">
+        <div class="max-w-[1640px] mx-auto px-4 sm:px-8 h-20 flex items-center justify-between gap-3">
             
-            <!-- Left: Brand Identity & Gallery Switcher -->
+            <!-- Left: Custom Original Logo / Brand Identity & Gallery Switcher -->
             <div class="flex items-center gap-4 sm:gap-6">
-                <a href="#top" onclick="scrollToTop(event)" class="group flex items-center gap-3 text-left focus:outline-none">
-                    <div class="w-9 h-9 rounded-full bg-wine-700 text-white flex items-center justify-center font-serif text-xl font-semibold tracking-wider shadow-sm group-hover:bg-wine-800 transition-colors">
-                        W
-                    </div>
-                    <div>
-                        <span class="block font-serif text-xl sm:text-2xl tracking-[0.22em] font-semibold text-stone-900 dark:text-white leading-none">
-                            WINEPRESS
-                        </span>
-                        <span class="block text-[9px] tracking-[0.28em] uppercase text-stone-500 dark:text-stone-400 mt-0.5">
-                            Client Galleries &amp; Proofing
-                        </span>
+                <a href="#top" onclick="scrollToTop(event)" class="group flex items-center gap-3.5 text-left focus:outline-none">
+                    <!-- Dynamic Original Brand Logo Image (Shown when uploaded) -->
+                    <img id="headerBrandLogoImg" src="" alt="Winepress Original Logo" class="hidden object-contain transition-transform duration-300 group-hover:scale-[1.02]" style="height: 44px; max-width: 210px;">
+
+                    <!-- Fallback Luxury Winepress Monogram Crest + Bodoni Moda Wordmark -->
+                    <div id="headerBrandFallback" class="flex items-center gap-3.5">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-wine-600 via-wine-800 to-wine-950 text-white flex items-center justify-center font-serif text-xl font-normal italic tracking-wider shadow-lg shadow-wine-950/60 border border-wine-500/40 group-hover:border-wine-400 transition-all">
+                            W
+                        </div>
+                        <div>
+                            <span id="headerBrandNameText" class="block font-serif text-xl sm:text-2xl tracking-[0.28em] font-medium text-stone-900 dark:text-white leading-none uppercase">
+                                WINEPRESS
+                            </span>
+                            <span id="headerBrandTaglineText" class="block text-[9px] tracking-[0.34em] uppercase text-wine-700 dark:text-wine-400 mt-1 font-medium">
+                                PRIVATE ARCHIVE &amp; PROOFING
+                            </span>
+                        </div>
                     </div>
                 </a>
 
-                <div class="hidden md:block h-5 w-[1px] bg-stone-300 dark:bg-stone-700"></div>
+                <!-- Quick "Upload Logo" Shortcut Button when Admin is Unlocked -->
+                <button id="quickLogoUploadBtn" onclick="triggerQuickLogoUpload()" class="hidden items-center gap-1.5 px-2.5 py-1 rounded-full bg-wine-900/40 hover:bg-wine-800/60 border border-wine-500/30 text-[10px] tracking-widest uppercase text-wine-200 transition-all" title="Upload Your Original Brand Logo">
+                    <i data-lucide="image-plus" class="w-3 h-3 text-wine-400"></i>
+                    <span class="hidden xl:inline">Upload Logo</span>
+                </button>
+
+                <div class="hidden md:block h-6 w-[1px] bg-stone-300 dark:bg-wine-900/60"></div>
 
                 <!-- Active Gallery Selector Dropdown -->
                 <div class="relative">
                     <label for="gallerySelect" class="sr-only">Choose Active Gallery</label>
-                    <div class="flex items-center gap-1.5 bg-stone-100 dark:bg-stone-800/90 hover:bg-stone-200/70 dark:hover:bg-stone-800 border border-stone-200/90 dark:border-stone-700 rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors">
-                        <i data-lucide="folder-heart" class="w-3.5 h-3.5 text-wine-700 dark:text-wine-400 shrink-0"></i>
-                        <select id="gallerySelect" onchange="switchGallery(this.value)" class="bg-transparent text-stone-800 dark:text-stone-200 font-medium focus:outline-none cursor-pointer pr-2 max-w-[150px] sm:max-w-[230px] truncate">
+                    <div class="flex items-center gap-2 bg-stone-100 dark:bg-[#140B0E] hover:bg-stone-200/70 dark:hover:bg-[#1C0F14] border border-stone-200/90 dark:border-wine-800/50 rounded-full px-4 py-1.5 text-xs font-medium transition-colors shadow-inner">
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-wine-600 dark:text-wine-400 shrink-0"></i>
+                        <select id="gallerySelect" onchange="switchGallery(this.value)" class="bg-transparent text-stone-800 dark:text-stone-200 font-medium tracking-wide focus:outline-none cursor-pointer pr-2 max-w-[140px] sm:max-w-[230px] truncate">
                             <!-- Populated dynamically -->
                         </select>
                     </div>
                 </div>
 
                 <!-- Live Cloud Sync Status Indicator Pill -->
-                <div id="cloudSyncPill" class="hidden xl:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-700 dark:text-emerald-300 text-[10px] font-mono tracking-wider uppercase">
-                    <span id="cloudSyncDot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <div id="cloudSyncPill" class="hidden xl:flex items-center gap-2 px-3 py-1 rounded-full bg-wine-950/80 border border-wine-700/40 text-wine-300 text-[10px] font-mono tracking-widest uppercase">
+                    <span id="cloudSyncDot" class="w-2 h-2 rounded-full bg-wine-500 animate-pulse"></span>
                     <span id="cloudSyncText">CLOUD SYNCED • LIVE</span>
                 </div>
             </div>
 
             <!-- Center: Role Switcher (Client View vs Locked Studio Admin) -->
-            <div class="flex items-center bg-stone-200/75 dark:bg-stone-800/90 p-1 rounded-full border border-stone-300/60 dark:border-stone-700">
-                <button id="roleClientBtn" onclick="setAppRole('client')" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all bg-white dark:bg-stone-900 text-stone-900 dark:text-white shadow-sm">
-                    <i data-lucide="eye" class="w-3.5 h-3.5 text-wine-700 dark:text-wine-400"></i>
+            <div class="flex items-center bg-stone-200/75 dark:bg-[#12090C] p-1 rounded-full border border-stone-300/60 dark:border-wine-900/60">
+                <button id="roleClientBtn" onclick="setAppRole('client')" class="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[11px] tracking-[0.14em] uppercase font-semibold transition-all bg-gradient-to-r from-wine-800 to-wine-700 text-white shadow-md shadow-wine-950/50">
+                    <i data-lucide="eye" class="w-3.5 h-3.5 text-wine-200"></i>
                     <span>Client Portal</span>
                 </button>
-                <button id="roleAdminBtn" onclick="requestAdminAccess()" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white">
-                    <i id="adminLockIcon" data-lucide="lock" class="w-3.5 h-3.5"></i>
+                <button id="roleAdminBtn" onclick="requestAdminAccess()" class="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[11px] tracking-[0.14em] uppercase font-semibold transition-all text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white">
+                    <i id="adminLockIcon" data-lucide="lock" class="w-3.5 h-3.5 text-wine-400"></i>
                     <span>Studio Admin</span>
-                    <span id="adminBadgeCount" class="hidden sm:inline-flex items-center justify-center px-1.5 py-0.2 text-[10px] rounded-full bg-wine-700/15 text-wine-700 dark:bg-wine-400/20 dark:text-wine-300 font-mono">3</span>
+                    <span id="adminBadgeCount" class="hidden sm:inline-flex items-center justify-center px-1.5 py-0.2 text-[10px] rounded-full bg-wine-700/25 text-wine-300 font-mono">3</span>
                 </button>
             </div>
 
-            <!-- Right: Quick Actions (Selection Pill, GitHub Guide, Dark Mode) -->
+            <!-- Right: Quick Actions (Selection Pill, GitHub Guide, Obsidian/Ivory Theme Toggle) -->
             <div class="flex items-center gap-2 sm:gap-3">
                 <!-- Live Selection Status Button -->
-                <button onclick="openSubmitModal()" id="headerSelectionBtn" class="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-wine-700 hover:bg-wine-800 text-white text-xs font-medium shadow-sm transition-all">
+                <button onclick="openSubmitModal()" id="headerSelectionBtn" class="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-wine-800 via-wine-700 to-wine-600 hover:from-wine-700 hover:to-wine-500 text-white text-[11px] tracking-[0.15em] uppercase font-semibold shadow-lg shadow-wine-950/60 border border-wine-400/30 transition-all">
                     <i data-lucide="heart" class="w-3.5 h-3.5 fill-current"></i>
                     <span id="headerSelectionCounter" class="font-mono">0 / 15</span>
                     <span class="hidden sm:inline">Selected</span>
                 </button>
 
                 <!-- GitHub Pages Hosting & Sync Modal Trigger -->
-                <button onclick="openGitHubModal()" title="GitHub Pages Hosting & Deployment Guide" class="p-2 rounded-full bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 border border-stone-200/80 dark:border-stone-700 transition-colors">
+                <button onclick="openGitHubModal()" title="GitHub Pages Hosting & Deployment Guide" class="p-2.5 rounded-full bg-stone-100 hover:bg-stone-200 dark:bg-[#140B0E] dark:hover:bg-wine-950 text-stone-700 dark:text-stone-300 border border-stone-200/80 dark:border-wine-900/60 transition-colors">
                     <i data-lucide="github" class="w-4 h-4"></i>
                 </button>
 
-                <!-- Color-Accurate Studio Dark Mode Toggle -->
-                <button onclick="toggleTheme()" id="themeToggleBtn" title="Toggle Studio Dark / Light Mode" class="p-2 rounded-full bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 border border-stone-200/80 dark:border-stone-700 transition-colors">
+                <!-- Signature Wine-Obsidian vs Soft Ivory Mode Toggle -->
+                <button onclick="toggleTheme()" id="themeToggleBtn" title="Switch Between Obsidian Wine Dark & Soft Ivory Mode" class="p-2.5 rounded-full bg-stone-100 hover:bg-stone-200 dark:bg-[#140B0E] dark:hover:bg-wine-950 text-stone-700 dark:text-stone-300 border border-stone-200/80 dark:border-wine-900/60 transition-colors">
                     <i data-lucide="moon" class="w-4 h-4 dark:hidden"></i>
-                    <i data-lucide="sun" class="w-4 h-4 hidden dark:block text-amber-400"></i>
+                    <i data-lucide="sparkles" class="w-4 h-4 hidden dark:block text-wine-400"></i>
                 </button>
             </div>
         </div>
@@ -204,61 +240,121 @@
     <main id="clientPortalView" class="flex-1">
         
         <!-- Full-Bleed Luxury Editorial Hero Cover -->
-        <section id="heroSection" class="relative h-[72vh] min-h-[500px] max-h-[780px] w-full overflow-hidden bg-stone-900">
-            <img id="heroCoverImg" src="" alt="Gallery Cover" class="w-full h-full object-cover object-center scale-105 transition-transform duration-1000 opacity-85">
-            <!-- Sophisticated Editorial Vignette Overlay -->
-            <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/30"></div>
+        <section id="heroSection" class="relative h-[78vh] min-h-[540px] max-h-[840px] w-full overflow-hidden bg-obsidian border-b border-wine-900/40">
+            <img id="heroCoverImg" src="" alt="Gallery Cover" class="w-full h-full object-cover object-center scale-105 transition-transform duration-1000 opacity-75">
+            <!-- Opulent Deep Wine & Obsidian Cinematic Vignette Overlay -->
+            <div class="absolute inset-0 bg-gradient-to-t from-[#070506] via-[#070506]/55 to-[#1b050b]/45"></div>
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_20%,#070506_100%)] opacity-80"></div>
 
             <!-- Top Overlay Meta Info -->
-            <div class="absolute top-6 left-4 sm:left-10 right-4 sm:right-10 flex flex-wrap items-center justify-between gap-2 text-white/85 text-xs tracking-widest uppercase">
-                <div class="flex items-center gap-2 bg-black/35 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/15">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span id="heroStatusBadge">PROOFING &amp; SELECTION OPEN</span>
+            <div class="absolute top-6 left-4 sm:left-10 right-4 sm:right-10 flex flex-wrap items-center justify-between gap-2 text-white/90 text-[10px] tracking-[0.28em] uppercase">
+                <div class="flex items-center gap-2.5 bg-[#0A0507]/70 backdrop-blur-md px-4 py-2 rounded-full border border-wine-500/30 shadow-lg">
+                    <span class="w-2 h-2 rounded-full bg-wine-500 animate-pulse"></span>
+                    <span id="heroStatusBadge" class="font-medium text-wine-100">PROOFING &amp; SELECTION OPEN</span>
                 </div>
-                <div class="flex items-center gap-3 bg-black/35 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/15 font-mono text-[11px]">
+                <div class="flex items-center gap-3 bg-[#0A0507]/70 backdrop-blur-md px-4 py-2 rounded-full border border-wine-500/30 font-mono text-[11px] text-wine-200">
                     <span id="heroClientCode">CODE: WP-2026</span>
-                    <span>•</span>
+                    <span class="text-wine-500">•</span>
                     <span id="heroPhotoCount">0 PHOTOS</span>
                 </div>
             </div>
 
-            <!-- Center Editorial Title & Actions -->
-            <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-4 max-w-4xl mx-auto">
-                <p id="heroSubtitle" class="text-xs sm:text-sm uppercase tracking-[0.35em] text-stone-300 mb-3 font-medium">
-                    WINEPRESS COMMISSIONS
-                </p>
-                <h1 id="heroTitle" class="font-serif text-4xl sm:text-6xl md:text-7xl text-white font-normal tracking-wide leading-[1.08] mb-4 drop-shadow-sm">
+            <!-- Center Editorial Title, Optional Hero Original Logo & Actions -->
+            <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-4 max-w-5xl mx-auto">
+                <!-- Optional Original Logo Crest Above Hero Title -->
+                <img id="heroCenterLogoImg" src="" alt="Studio Crest" class="hidden object-contain mb-5 drop-shadow-[0_10px_25px_rgba(0,0,0,0.8)]" style="max-height: 68px; max-width: 240px;">
+
+                <div class="inline-flex items-center gap-3 mb-4">
+                    <span class="h-[1px] w-8 bg-gradient-to-r from-transparent to-wine-400"></span>
+                    <p id="heroSubtitle" class="text-[10px] sm:text-xs uppercase tracking-[0.42em] text-wine-300 font-semibold">
+                        WINEPRESS EDITORIAL COMMISSIONS
+                    </p>
+                    <span class="h-[1px] w-8 bg-gradient-to-l from-transparent to-wine-400"></span>
+                </div>
+
+                <h1 id="heroTitle" class="font-serif text-4xl sm:text-6xl md:text-7xl lg:text-[5.25rem] luxury-headline-gradient font-normal italic tracking-tight leading-[1.04] mb-5 drop-shadow-2xl">
                     The Winepress Awakening
                 </h1>
-                <p id="heroDateAndLocation" class="text-xs sm:text-sm tracking-[0.2em] uppercase text-stone-300/90 mb-8">
+
+                <p id="heroDateAndLocation" class="text-[11px] sm:text-xs tracking-[0.34em] uppercase text-champagne mb-9 font-light">
                     OCTOBER 2026 &nbsp;•&nbsp; LAGOS, NIGERIA
                 </p>
 
-                <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
-                    <a href="#galleryToolbar" class="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-white text-stone-950 hover:bg-stone-100 text-xs uppercase tracking-[0.2em] font-semibold transition-all shadow-lg hover:shadow-xl">
-                        <span>Open Gallery</span>
+                <div class="flex flex-wrap items-center justify-center gap-4">
+                    <a href="#galleryToolbar" class="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-gradient-to-r from-wine-800 via-wine-700 to-wine-600 hover:from-wine-700 hover:to-wine-500 text-white text-[11px] uppercase tracking-[0.26em] font-semibold transition-all shadow-[0_10px_35px_-5px_rgba(169,38,66,0.65)] border border-wine-400/40">
+                        <span>Enter Private Gallery</span>
                         <i data-lucide="arrow-down" class="w-4 h-4"></i>
                     </a>
-                    <button onclick="openDownloadPinModal('all')" class="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-full bg-wine-700/90 hover:bg-wine-700 text-white backdrop-blur-md border border-wine-400/30 text-xs uppercase tracking-[0.18em] font-semibold transition-all shadow-lg">
-                        <i data-lucide="download" class="w-4 h-4"></i>
-                        <span>Download Photos</span>
+                    <button onclick="openDownloadPinModal('all')" class="inline-flex items-center gap-3 px-7 py-4 rounded-full bg-[#0D0609]/80 hover:bg-wine-950/90 text-alabaster backdrop-blur-md border border-wine-500/35 text-[11px] uppercase tracking-[0.24em] font-semibold transition-all shadow-xl">
+                        <i data-lucide="download" class="w-4 h-4 text-wine-400"></i>
+                        <span>Digital Delivery</span>
                     </button>
                 </div>
             </div>
 
             <!-- Photographer Welcome Note Bar at Bottom of Hero -->
-            <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 to-transparent py-5 px-4 sm:px-10">
-                <div class="max-w-[1500px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
-                    <p id="heroWelcomeMessage" class="text-xs sm:text-sm text-stone-300 italic font-serif tracking-wide max-w-2xl">
+            <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-[#070506] via-[#070506]/90 to-transparent py-6 px-4 sm:px-10">
+                <div class="max-w-[1560px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left border-t border-wine-900/40 pt-4">
+                    <p id="heroWelcomeMessage" class="text-xs sm:text-sm text-champagne italic font-serif tracking-wide max-w-2xl">
                         "Please heart your favorite frames for master retouching and final high-resolution delivery."
                     </p>
-                    <div class="flex items-center gap-4 text-xs text-stone-300">
-                        <span class="flex items-center gap-1.5">
-                            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-wine-400"></i>
-                            <span>Package Limit: <strong id="heroPackageLimit" class="text-white font-mono">15</strong> Retouched Picks</span>
+                    <div class="flex items-center gap-4 text-[11px] tracking-[0.18em] uppercase text-champagne">
+                        <span class="flex items-center gap-2">
+                            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-wine-400"></i>
+                            <span>Bespoke Package: <strong id="heroPackageLimit" class="text-white font-mono">15</strong> Master Retouched Picks</span>
                         </span>
                     </div>
                 </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             STICKY GALLERY FILTER & ACTION TOOLBAR
+             ========================================== -->
+        <section id="galleryToolbar" class="sticky top-20 z-30 bg-white/95 dark:bg-[#070506]/90 backdrop-blur-xl border-b border-stone-200 dark:border-wine-900/50 transition-colors">
+            <div class="max-w-[1640px] mx-auto px-4 sm:px-8 py-4 flex flex-wrap items-center justify-between gap-4">
+                
+                <!-- Category Tabs -->
+                <div id="categoryTabsContainer" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
+                    <!-- Populated dynamically via JS -->
+                </div>
+
+                <!-- Right Controls: Search, Watermark Indicator, Grid Density, Actions -->
+                <div class="flex flex-wrap items-center gap-2.5 ml-auto">
+                    
+                    <!-- Filename / Note Search -->
+                    <div class="relative">
+                        <i data-lucide="search" class="w-3.5 h-3.5 text-wine-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                        <input id="photoSearchInput" type="text" oninput="handleSearchInput(this.value)" placeholder="Filter frame # (e.g. 0042)..." class="pl-9 pr-4 py-2 rounded-full text-xs bg-stone-100 dark:bg-[#130A0D] border border-stone-200 dark:border-wine-900/70 text-stone-900 dark:text-alabaster placeholder-stone-400 dark:placeholder-pewter focus:outline-none focus:border-wine-500 w-44 sm:w-56 font-mono">
+                    </div>
+
+                    <!-- Grid Density Switcher -->
+                    <div class="hidden lg:flex items-center bg-stone-100 dark:bg-[#130A0D] p-0.5 rounded-full border border-stone-200 dark:border-wine-900/70">
+                        <button onclick="setGridDensity('comfortable')" id="densityComfortableBtn" title="3-Column Editorial Grid" class="px-2.5 py-1.5 rounded-full text-xs font-medium bg-wine-800 text-white shadow-sm">
+                            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+                        </button>
+                        <button onclick="setGridDensity('compact')" id="densityCompactBtn" title="4-Column Proofing Grid" class="px-2.5 py-1.5 rounded-full text-xs font-medium text-stone-500 dark:text-pewter hover:text-stone-900 dark:hover:text-white">
+                            <i data-lucide="grid" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+
+                    <!-- Send Final Selection CTA -->
+                    <button onclick="openSubmitModal()" class="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-wine-800 to-wine-600 hover:from-wine-700 hover:to-wine-500 text-white text-[11px] uppercase tracking-[0.16em] font-semibold transition-all shadow-md shadow-wine-950/60 border border-wine-400/30">
+                        <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                        <span>Submit Final Picks</span>
+                    </button>
+
+                    <!-- Download ZIP CTA -->
+                    <button onclick="openDownloadPinModal('all')" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-stone-900 hover:bg-stone-800 dark:bg-[#190D11] dark:hover:bg-wine-950 text-white dark:text-wine-200 border border-transparent dark:border-wine-800/60 text-[11px] uppercase tracking-[0.15em] font-semibold transition-all">
+                        <i data-lucide="download" class="w-3.5 h-3.5 text-wine-400"></i>
+                        <span class="hidden sm:inline">Download .ZIP</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Interactive Proofing Progress Bar -->
+            <div class="w-full h-[3px] bg-stone-200 dark:bg-[#140A0D] overflow-hidden">
+                <div id="selectionProgressBar" class="h-full bg-gradient-to-r from-wine-800 via-wine-600 to-wine-400 transition-all duration-300" style="width: 0%"></div>
             </div>
         </section>
 
@@ -315,31 +411,31 @@
         <!-- ==========================================
              GALLERY MASONRY PHOTO GRID
              ========================================== -->
-        <section class="max-w-[1600px] mx-auto px-4 sm:px-8 py-8 sm:py-12">
+        <section class="max-w-[1640px] mx-auto px-4 sm:px-8 py-8 sm:py-12">
             
             <!-- Status Banner for Client Instructions -->
-            <div class="mb-8 p-4 sm:px-6 rounded-2xl bg-stone-100/90 dark:bg-stone-900/80 border border-stone-200/80 dark:border-stone-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div class="flex items-start sm:items-center gap-3.5">
-                    <div class="w-10 h-10 rounded-full bg-wine-700/10 dark:bg-wine-500/10 text-wine-700 dark:text-wine-400 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
+            <div class="mb-8 p-5 sm:px-7 rounded-2xl bg-stone-100/90 dark:bg-[#11090C]/90 border border-stone-200/80 dark:border-wine-900/50 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div class="flex items-start sm:items-center gap-4">
+                    <div class="w-11 h-11 rounded-full bg-gradient-to-br from-wine-700/30 to-wine-950/60 border border-wine-600/30 text-wine-400 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
                         <i data-lucide="sparkles" class="w-5 h-5"></i>
                     </div>
                     <div>
-                        <h2 class="text-sm font-semibold text-stone-900 dark:text-white flex items-center gap-2">
-                            <span>Client Proofing &amp; Selection Assistant</span>
-                            <span id="extraPicksBadge" class="hidden px-2 py-0.5 text-[10px] rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 font-mono">Extra Picks Added</span>
+                        <h2 class="font-serif text-lg sm:text-xl italic font-normal text-stone-900 dark:text-white flex items-center gap-2.5">
+                            <span>Bespoke Proofing &amp; Retouching Suite</span>
+                            <span id="extraPicksBadge" class="hidden px-2.5 py-0.5 text-[10px] not-italic font-sans rounded-full bg-wine-500/20 border border-wine-500/40 text-wine-300 font-mono">Extra Picks Added</span>
                         </h2>
-                        <p class="text-xs text-stone-600 dark:text-stone-400 mt-0.5">
-                            Click the <strong class="text-wine-700 dark:text-wine-400">Heart icon</strong> on your favorite photographs to add them to your selection list, or add retouch notes (e.g., <em>"B&amp;W version"</em>, <em>"Remove background distraction"</em>).
+                        <p class="text-xs text-stone-600 dark:text-champagne mt-0.5">
+                            Tap the <strong class="text-wine-600 dark:text-wine-400">Wine Heart</strong> on your favorite frames to curate your selection, or click any photograph to leave custom retouching notes.
                         </p>
                     </div>
                 </div>
-                <div class="flex items-center gap-2 self-end sm:self-center shrink-0">
-                    <button onclick="filterByCategory('Selected')" class="px-3.5 py-1.5 rounded-full text-xs font-medium bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:border-wine-700 transition-colors">
-                        View My Picks (<span id="bannerSelectedCount">0</span>)
+                <div class="flex items-center gap-2.5 self-end sm:self-center shrink-0">
+                    <button onclick="filterByCategory('Selected')" class="px-4 py-2 rounded-full text-[11px] uppercase tracking-[0.16em] font-semibold bg-white dark:bg-[#190D11] border border-stone-200 dark:border-wine-800/70 text-stone-800 dark:text-wine-200 hover:border-wine-500 transition-colors">
+                        My Curated Picks (<span id="bannerSelectedCount">0</span>)
                     </button>
-                    <button onclick="openClientCodeModal()" class="px-3.5 py-1.5 rounded-full text-xs font-medium bg-stone-200/70 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-300/70 transition-colors flex items-center gap-1">
-                        <i data-lucide="key-round" class="w-3 h-3"></i>
-                        <span>Enter Client Code</span>
+                    <button onclick="openClientCodeModal()" class="px-4 py-2 rounded-full text-[11px] uppercase tracking-[0.16em] font-semibold bg-stone-200/70 dark:bg-wine-950/60 border border-transparent dark:border-wine-800/50 text-stone-700 dark:text-wine-300 hover:bg-wine-900/60 transition-colors flex items-center gap-1.5">
+                        <i data-lucide="key-round" class="w-3.5 h-3.5 text-wine-400"></i>
+                        <span>Client Code</span>
                     </button>
                 </div>
             </div>
@@ -368,37 +464,37 @@
     <!-- ==========================================
          PHOTOGRAPHER STUDIO ADMIN DASHBOARD VIEW
          ========================================== -->
-    <section id="studioAdminView" class="hidden flex-1 bg-stone-100/70 dark:bg-studio py-8 sm:py-12">
-        <div class="max-w-[1600px] mx-auto px-4 sm:px-8">
+    <section id="studioAdminView" class="hidden flex-1 bg-stone-100/70 dark:bg-obsidian py-8 sm:py-12">
+        <div class="max-w-[1640px] mx-auto px-4 sm:px-8">
             
             <!-- Admin Header Banner -->
-            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-8 border-b border-stone-200 dark:border-stone-800">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-8 border-b border-stone-200 dark:border-wine-900/50">
                 <div>
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-wine-700/10 text-wine-700 dark:bg-wine-400/15 dark:text-wine-300 text-xs font-semibold mb-2">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-wine-900/30 border border-wine-600/30 text-wine-400 text-[10px] tracking-[0.25em] uppercase font-semibold mb-2">
                         <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-                        <span>WINEPRESS STUDIO MANAGER • REAL-TIME CLOUD SYNC</span>
+                        <span>WINEPRESS ATELIER ADMIN • LIVE CLOUD SYNC</span>
                     </div>
-                    <h1 class="font-serif text-3xl sm:text-4xl font-semibold text-stone-900 dark:text-white">
-                        Gallery Production, Cloud Upload &amp; Client Delivery
+                    <h1 class="font-serif text-3xl sm:text-5xl italic font-normal text-stone-900 dark:text-white">
+                        Brand Identity, Cloud Production &amp; Delivery
                     </h1>
-                    <p class="text-xs sm:text-sm text-stone-600 dark:text-stone-400 mt-1">
-                        Every setting, uploaded photo, client heart, and retouch note syncs automatically across all devices in real time.
+                    <p class="text-xs sm:text-sm text-stone-600 dark:text-champagne mt-1">
+                        Your original logo, gallery settings, Google Drive streams, and client selections sync across all devices in real time.
                     </p>
-                    <p id="adminCloudUidDisplay" class="text-[11px] font-mono text-stone-400 mt-1">
+                    <p id="adminCloudUidDisplay" class="text-[11px] font-mono text-pewter mt-1">
                         Session ID: Initializing Cloud Auth...
                     </p>
                 </div>
 
                 <div class="flex flex-wrap items-center gap-3">
-                    <button onclick="createNewGalleryModal()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-stone-900 dark:bg-white text-white dark:text-stone-900 text-xs font-semibold hover:opacity-90 transition-all shadow-sm">
-                        <i data-lucide="folder-plus" class="w-4 h-4"></i>
+                    <button onclick="createNewGalleryModal()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-[#190D11] border border-stone-300 dark:border-wine-700/50 text-stone-900 dark:text-white text-xs font-semibold hover:border-wine-500 transition-all shadow-sm">
+                        <i data-lucide="folder-plus" class="w-4 h-4 text-wine-400"></i>
                         <span>+ New Cloud Gallery</span>
                     </button>
-                    <button onclick="exportForGitHubPages()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-wine-700 hover:bg-wine-800 text-white text-xs font-semibold transition-all shadow-sm">
+                    <button onclick="exportForGitHubPages()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-wine-800 to-wine-600 hover:from-wine-700 hover:to-wine-500 text-white text-xs font-semibold transition-all shadow-md">
                         <i data-lucide="code-2" class="w-4 h-4"></i>
                         <span>Export Backup `galleries.json`</span>
                     </button>
-                    <button onclick="lockAdminSession()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-200 text-xs font-semibold hover:border-red-600 hover:text-red-600 transition-all">
+                    <button onclick="lockAdminSession()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-[#140A0D] border border-stone-200 dark:border-wine-900/60 text-stone-700 dark:text-stone-300 text-xs font-semibold hover:border-red-600 hover:text-red-400 transition-all">
                         <i data-lucide="log-out" class="w-4 h-4"></i>
                         <span>Lock Admin</span>
                     </button>
@@ -408,17 +504,84 @@
             <!-- 3-Column Admin Workspace -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8">
                 
-                <!-- LEFT COLUMN (4 cols): Gallery Settings & Rules -->
+                <!-- LEFT COLUMN (4 cols): Original Brand Logo + Gallery Settings + Live Client Picks -->
                 <div class="lg:col-span-4 space-y-6">
+
+                    <!-- ==========================================
+                         NEW: ORIGINAL BRAND LOGO & IDENTITY UPLOADER CARD
+                         ========================================== -->
+                    <div class="bg-white dark:bg-studioCard rounded-2xl p-6 border border-stone-200/80 dark:border-wine-800/50 shadow-xl relative overflow-hidden">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="font-serif text-2xl italic font-normal text-stone-900 dark:text-white flex items-center gap-2.5">
+                                <i data-lucide="crown" class="w-5 h-5 text-wine-500"></i>
+                                <span>Original Brand Logo</span>
+                            </h2>
+                            <span class="text-[10px] font-mono uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-wine-900/40 text-wine-300 border border-wine-700/40">Global Sync</span>
+                        </div>
+                        <p class="text-xs text-stone-500 dark:text-champagne mb-4 leading-relaxed">
+                            Upload your original <strong>WINEPRESS</strong> logo (`.PNG` with transparent background, `.SVG`, `.WEBP`, or `.JPG`) or paste a direct logo link.
+                        </p>
+
+                        <!-- Live Logo Preview Box on Obsidian Canvas -->
+                        <div class="mb-4 p-4 rounded-xl bg-[#070506] border border-wine-900/60 flex flex-col items-center justify-center min-h-[96px] relative">
+                            <img id="adminLogoPreviewImg" src="" alt="Uploaded Original Logo Preview" class="hidden object-contain transition-all" style="height: 48px; max-width: 240px;">
+                            <div id="adminLogoPreviewFallback" class="text-center">
+                                <span class="font-serif text-xl tracking-[0.28em] text-white uppercase block">WINEPRESS</span>
+                                <span class="text-[9px] tracking-[0.3em] text-wine-400 uppercase block mt-0.5">Using Default Monogram (Upload Logo Below)</span>
+                            </div>
+                            <button id="removeCustomLogoBtn" onclick="clearCustomBrandLogo()" class="hidden absolute top-2 right-2 px-2 py-1 rounded bg-red-950/80 hover:bg-red-800 text-red-200 text-[10px] font-semibold border border-red-700/40">
+                                Reset
+                            </button>
+                        </div>
+
+                        <div class="space-y-3.5 text-xs">
+                            <!-- Upload Original Logo File Button -->
+                            <label for="brandLogoFileInput" class="cursor-pointer w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-wine-800 to-wine-600 hover:from-wine-700 hover:to-wine-500 text-white font-semibold flex items-center justify-center gap-2 shadow-md transition-all">
+                                <i data-lucide="upload" class="w-4 h-4"></i>
+                                <span>Upload Original Logo File (PNG / SVG / JPG)</span>
+                                <input id="brandLogoFileInput" type="file" accept="image/*" onchange="handleBrandLogoUpload(this.files)" class="hidden">
+                            </label>
+
+                            <!-- Or Paste Direct Logo URL / Google Drive Link -->
+                            <div>
+                                <label class="block text-[11px] text-stone-500 dark:text-pewter mb-1">Or Paste Direct Logo Image URL / Google Drive Link</label>
+                                <div class="flex gap-2">
+                                    <input id="brandLogoUrlInput" type="text" placeholder="https://... or Google Drive share link" class="flex-1 px-3 py-2 rounded-xl bg-stone-50 dark:bg-[#0A0507] border border-stone-200 dark:border-wine-900/70 font-mono text-[11px] focus:outline-none focus:border-wine-500">
+                                    <button onclick="applyBrandLogoUrl()" class="px-3.5 py-2 rounded-xl bg-stone-900 dark:bg-wine-900/60 hover:bg-wine-800 text-white text-[11px] font-semibold border border-wine-700/40">
+                                        Apply
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Logo Size Slider & Placement Toggles -->
+                            <div class="pt-2 border-t border-stone-200 dark:border-wine-900/50 space-y-2.5">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[11px] font-semibold text-stone-700 dark:text-champagne">Header Logo Size</span>
+                                    <span id="logoHeightValueLabel" class="font-mono text-[11px] text-wine-400">44px</span>
+                                </div>
+                                <input id="logoHeightRangeInput" type="range" min="28" max="76" value="44" oninput="updateBrandLogoSettings('logoHeight', parseInt(this.value))" class="w-full accent-wine-600 cursor-pointer">
+
+                                <div class="flex items-center justify-between pt-1">
+                                    <span class="text-[11px] text-stone-600 dark:text-champagne">Display Logo in Hero Banner Centerpiece</span>
+                                    <input type="checkbox" id="showLogoInHeroToggle" checked onchange="updateBrandLogoSettings('showInHero', this.checked)" class="w-4 h-4 accent-wine-600 rounded cursor-pointer">
+                                </div>
+
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[11px] text-stone-600 dark:text-champagne">Use Original Logo as Photo Proof Watermark</span>
+                                    <input type="checkbox" id="useLogoAsWatermarkToggle" checked onchange="updateBrandLogoSettings('useAsWatermark', this.checked)" class="w-4 h-4 accent-wine-600 rounded cursor-pointer">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     
                     <!-- Active Gallery Settings Card -->
-                    <div class="bg-white dark:bg-studioCard rounded-2xl p-6 border border-stone-200/80 dark:border-stone-800 shadow-sm">
+                    <div class="bg-white dark:bg-studioCard rounded-2xl p-6 border border-stone-200/80 dark:border-wine-900/50 shadow-sm">
                         <div class="flex items-center justify-between mb-5">
-                            <h2 class="font-serif text-xl font-semibold text-stone-900 dark:text-white flex items-center gap-2">
-                                <i data-lucide="settings-2" class="w-5 h-5 text-wine-700 dark:text-wine-400"></i>
+                            <h2 class="font-serif text-2xl italic font-normal text-stone-900 dark:text-white flex items-center gap-2">
+                                <i data-lucide="settings-2" class="w-5 h-5 text-wine-500"></i>
                                 <span>Gallery Settings</span>
                             </h2>
-                            <span id="adminGalleryIdBadge" class="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-stone-100 dark:bg-stone-800 text-stone-500">ID: wp-1</span>
+                            <span id="adminGalleryIdBadge" class="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-stone-100 dark:bg-[#1A0E12] text-stone-500 dark:text-wine-300">ID: wp-1</span>
                         </div>
 
                         <div class="space-y-4 text-xs">
@@ -754,10 +917,11 @@
             <!-- Image Wrapper with Optional Proofing Watermark -->
             <div class="relative max-h-full max-w-full flex items-center justify-center">
                 <img id="lightboxImage" src="" alt="Full View" class="max-h-[72vh] max-w-[90vw] object-contain rounded shadow-2xl transition-transform duration-300">
-                <!-- Dynamic Proofing Watermark Overlay -->
+                <!-- Dynamic Proofing Watermark Overlay (Supports Uploaded Original Logo!) -->
                 <div id="lightboxWatermark" class="hidden absolute inset-0 pointer-events-none flex items-center justify-center watermark-diagonal">
-                    <div class="border border-white/25 px-6 py-2.5 rounded bg-black/25 backdrop-blur-[1px] -rotate-12">
-                        <span class="font-serif text-lg sm:text-2xl tracking-[0.35em] text-white/40 uppercase font-semibold">WINEPRESS PROOF</span>
+                    <div id="lightboxWatermarkContent" class="border border-white/25 px-6 py-2.5 rounded bg-black/35 backdrop-blur-[1px] -rotate-12 flex flex-col items-center gap-1.5">
+                        <img id="lightboxWatermarkLogoImg" src="" alt="Proof Logo" class="hidden object-contain opacity-55" style="max-height: 46px; max-width: 180px;">
+                        <span id="lightboxWatermarkText" class="font-serif text-lg sm:text-2xl tracking-[0.35em] text-white/40 uppercase font-normal italic">WINEPRESS PROOF</span>
                     </div>
                 </div>
             </div>
@@ -1104,19 +1268,20 @@
     <!-- ==========================================
          EDITORIAL FOOTER
          ========================================== -->
-    <footer class="border-t border-stone-200/80 dark:border-stone-800/80 py-10 px-4 sm:px-8 mt-16 bg-alabaster dark:bg-studio transition-colors">
-        <div class="max-w-[1600px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-stone-500 dark:text-stone-400">
-            <div class="flex items-center gap-3">
-                <span class="font-serif text-lg tracking-[0.25em] text-stone-900 dark:text-white font-semibold">WINEPRESS</span>
-                <span>•</span>
-                <span>Luxury Photography Proofing &amp; Digital Delivery</span>
+    <footer class="border-t border-stone-200/80 dark:border-wine-900/50 py-12 px-4 sm:px-8 mt-16 bg-alabaster dark:bg-[#050304] transition-colors">
+        <div class="max-w-[1640px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-stone-500 dark:text-pewter">
+            <div class="flex items-center gap-4">
+                <img id="footerBrandLogoImg" src="" alt="Winepress Logo" class="hidden object-contain" style="height: 30px; max-width: 150px;">
+                <span id="footerBrandWordmark" class="font-serif text-xl tracking-[0.28em] text-stone-900 dark:text-white font-normal uppercase">WINEPRESS</span>
+                <span class="text-wine-600">•</span>
+                <span class="tracking-[0.2em] uppercase text-[10px]">Private Client Galleries &amp; Bespoke Digital Delivery</span>
             </div>
             <div class="flex items-center gap-4">
-                <button onclick="openGitHubModal()" class="hover:text-wine-700 dark:hover:text-wine-400 underline underline-offset-4">GitHub Pages Guide</button>
+                <button onclick="openGitHubModal()" class="hover:text-wine-600 dark:hover:text-wine-400 underline underline-offset-4">GitHub Pages Guide</button>
                 <span>•</span>
-                <button onclick="requestAdminAccess()" class="hover:text-wine-700 dark:hover:text-wine-400 underline underline-offset-4 flex items-center gap-1">
-                    <i data-lucide="lock" class="w-3 h-3"></i>
-                    <span>Studio Login</span>
+                <button onclick="requestAdminAccess()" class="hover:text-wine-600 dark:hover:text-wine-400 underline underline-offset-4 flex items-center gap-1">
+                    <i data-lucide="lock" class="w-3 h-3 text-wine-500"></i>
+                    <span>Studio Atelier Login</span>
                 </button>
             </div>
         </div>
@@ -1126,7 +1291,7 @@
          APPLICATION STATE & JAVASCRIPT ENGINE
          ========================================== -->
     <script>
-        // Pre-loaded Luxury Sample Galleries for Winepress
+        // Pre-loaded Luxury Sample Galleries for Winepress (Defaulting to Wine & Obsidian Black Theme)
         const DEFAULT_GALLERIES = [
             {
                 id: 'wp-awakening',
@@ -1138,7 +1303,7 @@
                 selectionLimit: 12,
                 downloadPin: '2026',
                 watermark: true,
-                defaultDarkMode: false,
+                defaultDarkMode: true,
                 welcomeNote: '"Welcome to your official proofing gallery. Please heart up to 12 favorite frames for master retouching and high-resolution delivery."',
                 coverUrl: 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1800&q=85',
                 photos: [
@@ -1188,7 +1353,7 @@
                 selectionLimit: 20,
                 downloadPin: '2026',
                 watermark: true,
-                defaultDarkMode: false,
+                defaultDarkMode: true,
                 welcomeNote: '"Every frame tells your story. Select your 20 favorite photographs for your luxury linen coffee-table album."',
                 coverUrl: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1800&q=85',
                 photos: [
@@ -1199,6 +1364,210 @@
                     { id: 'b5', filename: 'WP_WED_0061.JPG', category: 'Portraits', url: 'https://images.unsplash.com/photo-1537633552985-df8429e8048b?auto=format&fit=crop&w=1100&q=80', selected: false, note: '' }
                 ]
             }
+        ];
+
+        // Application State & Cloud Sync State
+        let galleries = JSON.parse(JSON.stringify(DEFAULT_GALLERIES));
+        let activeGalleryId = galleries[0].id;
+        let currentCategory = 'All';
+        let searchQuery = '';
+        let currentRole = 'client'; // 'client' | 'admin'
+        let isAdminUnlocked = false;
+        let studioMasterPasscode = 'WINEPRESS2026';
+        let studioGoogleDriveApiKey = '';
+
+        // Global Original Brand Logo Configuration (Synced via Cloud)
+        let brandLogoConfig = {
+            logoUrl: '',          // DataURL or Direct Image URL of the user's original logo
+            logoHeight: 44,       // Height in px in the header
+            showInHero: true,     // Whether to show the logo above the Hero Title
+            useAsWatermark: true  // Whether to stamp the uploaded logo as the photo watermark
+        };
+
+        let gridDensity = 'comfortable'; // 'comfortable' | 'compact'
+        let lightboxPhotoList = [];
+        let lightboxCurrentIndex = 0;
+        let configSyncDebounceTimer = null;
+
+        // Helper: Get currently active gallery object
+        function getActiveGallery() {
+            return galleries.find(g => g.id === activeGalleryId) || galleries[0];
+        }
+
+        // Render Original Brand Logo Across Header, Hero, Watermarks, Footer & Admin Preview
+        function renderBrandIdentityUI() {
+            const hasLogo = !!(brandLogoConfig.logoUrl && brandLogoConfig.logoUrl.trim() !== '');
+            const heightPx = Number(brandLogoConfig.logoHeight) || 44;
+
+            // 1. Header Logo vs Fallback Wordmark
+            const headerLogo = document.getElementById('headerBrandLogoImg');
+            const headerFallback = document.getElementById('headerBrandFallback');
+            if (headerLogo && headerFallback) {
+                if (hasLogo) {
+                    headerLogo.src = brandLogoConfig.logoUrl;
+                    headerLogo.style.height = `${heightPx}px`;
+                    headerLogo.classList.remove('hidden');
+                    headerFallback.classList.add('hidden');
+                } else {
+                    headerLogo.classList.add('hidden');
+                    headerFallback.classList.remove('hidden');
+                }
+            }
+
+            // 2. Hero Centerpiece Logo
+            const heroLogo = document.getElementById('heroCenterLogoImg');
+            if (heroLogo) {
+                if (hasLogo && brandLogoConfig.showInHero) {
+                    heroLogo.src = brandLogoConfig.logoUrl;
+                    heroLogo.style.maxHeight = `${Math.round(heightPx * 1.45)}px`;
+                    heroLogo.classList.remove('hidden');
+                } else {
+                    heroLogo.classList.add('hidden');
+                }
+            }
+
+            // 3. Footer Logo
+            const footerLogo = document.getElementById('footerBrandLogoImg');
+            const footerWordmark = document.getElementById('footerBrandWordmark');
+            if (footerLogo && footerWordmark) {
+                if (hasLogo) {
+                    footerLogo.src = brandLogoConfig.logoUrl;
+                    footerLogo.classList.remove('hidden');
+                    footerWordmark.classList.add('hidden');
+                } else {
+                    footerLogo.classList.add('hidden');
+                    footerWordmark.classList.remove('hidden');
+                }
+            }
+
+            // 4. Admin Preview Card
+            const adminPreviewImg = document.getElementById('adminLogoPreviewImg');
+            const adminPreviewFallback = document.getElementById('adminLogoPreviewFallback');
+            const removeBtn = document.getElementById('removeCustomLogoBtn');
+            const heightLabel = document.getElementById('logoHeightValueLabel');
+            const heightRange = document.getElementById('logoHeightRangeInput');
+            const heroCheck = document.getElementById('showLogoInHeroToggle');
+            const wmCheck = document.getElementById('useLogoAsWatermarkToggle');
+
+            if (heightLabel) heightLabel.textContent = `${heightPx}px`;
+            if (heightRange) heightRange.value = heightPx;
+            if (heroCheck) heroCheck.checked = !!brandLogoConfig.showInHero;
+            if (wmCheck) wmCheck.checked = !!brandLogoConfig.useAsWatermark;
+
+            if (adminPreviewImg && adminPreviewFallback) {
+                if (hasLogo) {
+                    adminPreviewImg.src = brandLogoConfig.logoUrl;
+                    adminPreviewImg.style.height = `${Math.min(64, heightPx)}px`;
+                    adminPreviewImg.classList.remove('hidden');
+                    adminPreviewFallback.classList.add('hidden');
+                    if (removeBtn) removeBtn.classList.remove('hidden');
+                } else {
+                    adminPreviewImg.classList.add('hidden');
+                    adminPreviewFallback.classList.remove('hidden');
+                    if (removeBtn) removeBtn.classList.add('hidden');
+                }
+            }
+        }
+
+        // Compress & Convert Uploaded Logo (Preserving PNG/WebP Alpha Transparency!)
+        function optimizeLogoFileToDataUrl(file, maxDimension = 600) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    // If SVG, keep crisp vector data URL directly
+                    if (file.type === 'image/svg+xml') {
+                        resolve(e.target.result);
+                        return;
+                    }
+                    const img = new Image();
+                    img.onload = () => {
+                        let width = img.width;
+                        let height = img.height;
+                        if (width > maxDimension || height > maxDimension) {
+                            if (width > height) {
+                                height = Math.round((height * maxDimension) / width);
+                                width = maxDimension;
+                            } else {
+                                width = Math.round((width * maxDimension) / height);
+                                height = maxDimension;
+                            }
+                        }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.clearRect(0, 0, width, height);
+                        ctx.drawImage(img, 0, 0, width, height);
+                        // Use image/png to preserve transparent logo backgrounds
+                        resolve(canvas.toDataURL('image/png'));
+                    };
+                    img.onerror = () => resolve(e.target.result);
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function handleBrandLogoUpload(fileList) {
+            if (!fileList || !fileList.length) return;
+            const file = fileList[0];
+            setCloudSyncStatus('syncing', 'UPLOADING ORIGINAL LOGO...');
+            const dataUrl = await optimizeLogoFileToDataUrl(file, 600);
+            brandLogoConfig.logoUrl = dataUrl;
+            renderBrandIdentityUI();
+            renderClientGallery();
+            if (typeof window.saveStudioSettingsToFirestore === 'function') {
+                window.saveStudioSettingsToFirestore({ brandLogoConfig });
+            }
+            showToast('Uploaded & synced your Original Brand Logo across the website!', 'crown');
+        }
+
+        function applyBrandLogoUrl() {
+            const rawInput = document.getElementById('brandLogoUrlInput').value.trim();
+            if (!rawInput) {
+                showToast('Paste a direct logo image link or Google Drive file link first.', 'alert-circle');
+                return;
+            }
+            // Automatically convert Google Drive share link if pasted
+            const driveId = extractDriveId(rawInput);
+            const finalLogoUrl = (rawInput.includes('drive.google.com') && driveId)
+                ? `https://lh3.googleusercontent.com/d/${driveId}=w800`
+                : rawInput;
+
+            brandLogoConfig.logoUrl = finalLogoUrl;
+            document.getElementById('brandLogoUrlInput').value = '';
+            renderBrandIdentityUI();
+            renderClientGallery();
+            if (typeof window.saveStudioSettingsToFirestore === 'function') {
+                window.saveStudioSettingsToFirestore({ brandLogoConfig });
+            }
+            showToast('Applied & synced your Original Brand Logo!', 'crown');
+        }
+
+        function updateBrandLogoSettings(key, value) {
+            brandLogoConfig[key] = value;
+            renderBrandIdentityUI();
+            renderClientGallery();
+            if (typeof window.saveStudioSettingsToFirestore === 'function') {
+                window.saveStudioSettingsToFirestore({ brandLogoConfig });
+            }
+        }
+
+        function clearCustomBrandLogo() {
+            brandLogoConfig.logoUrl = '';
+            renderBrandIdentityUI();
+            renderClientGallery();
+            if (typeof window.saveStudioSettingsToFirestore === 'function') {
+                window.saveStudioSettingsToFirestore({ brandLogoConfig });
+            }
+            showToast('Reverted to default Winepress monogram crest.', 'rotate-ccw');
+        }
+
+        function triggerQuickLogoUpload() {
+            setAppRole('admin');
+            const fileInput = document.getElementById('brandLogoFileInput');
+            if (fileInput) fileInput.click();
+        }
         ];
 
         // Application State & Cloud Sync State
@@ -1260,6 +1629,7 @@
 
         // Initialize Application
         window.addEventListener('DOMContentLoaded', () => {
+            renderBrandIdentityUI();
             renderGallerySelector();
             renderAllViews();
             setupDragAndDrop();
@@ -1273,12 +1643,12 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Toggle Dark Studio Mode
+        // Toggle Signature Wine-Obsidian Dark Mode vs Soft Ivory Mode
         function toggleTheme() {
             const html = document.documentElement;
             html.classList.toggle('dark');
             const isDark = html.classList.contains('dark');
-            showToast(isDark ? 'Switched to Color-Accurate Studio Dark Mode' : 'Switched to Editorial Alabaster Light Mode', 'sparkles');
+            showToast(isDark ? 'Switched to Signature Wine & Obsidian Black Mode' : 'Switched to Soft Ivory Inspection Mode', 'sparkles');
         }
 
         // ==========================================
@@ -1307,8 +1677,13 @@
                 closeAdminLoginModal();
                 const lockIcon = document.getElementById('adminLockIcon');
                 if (lockIcon) lockIcon.setAttribute('data-lucide', 'sliders');
+                const quickLogoBtn = document.getElementById('quickLogoUploadBtn');
+                if (quickLogoBtn) {
+                    quickLogoBtn.classList.remove('hidden');
+                    quickLogoBtn.classList.add('inline-flex');
+                }
                 setAppRole('admin');
-                showToast('Studio Admin Unlocked • Live Cloud Sync Active', 'shield-check');
+                showToast('Studio Admin Unlocked • Upload Your Original Logo Anytime', 'shield-check');
             } else {
                 document.getElementById('adminPasscodeError').classList.remove('hidden');
             }
@@ -1318,6 +1693,11 @@
             isAdminUnlocked = false;
             const lockIcon = document.getElementById('adminLockIcon');
             if (lockIcon) lockIcon.setAttribute('data-lucide', 'lock');
+            const quickLogoBtn = document.getElementById('quickLogoUploadBtn');
+            if (quickLogoBtn) {
+                quickLogoBtn.classList.add('hidden');
+                quickLogoBtn.classList.remove('inline-flex');
+            }
             setAppRole('client');
             showToast('Studio Admin locked.', 'lock');
         }
@@ -1442,13 +1822,13 @@
                 const count = cat === 'All' ? gallery.photos.length : gallery.photos.filter(p => p.category === cat).length;
                 const isActive = currentCategory === cat;
                 return `
-                    <button onclick="filterByCategory('${cat.replace(/'/g, "\\'")}')" class="px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+                    <button onclick="filterByCategory('${cat.replace(/'/g, "\\'")}')" class="px-4 py-2 rounded-full text-[11px] uppercase tracking-[0.16em] font-semibold whitespace-nowrap transition-all ${
                         isActive
-                            ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900 shadow-sm'
-                            : 'text-stone-600 dark:text-stone-400 hover:bg-stone-200/60 dark:hover:bg-stone-800'
+                            ? 'bg-gradient-to-r from-wine-800 to-wine-600 text-white shadow-md shadow-wine-950/60 border border-wine-500/40'
+                            : 'text-stone-600 dark:text-champagne hover:bg-stone-200/60 dark:hover:bg-[#190D11] border border-transparent dark:hover:border-wine-900/50'
                     }">
-                        <span>${cat === 'All' ? 'All Photos' : cat}</span>
-                        <span class="ml-1 opacity-60 font-mono text-[11px]">(${count})</span>
+                        <span>${cat === 'All' ? 'All Frames' : cat}</span>
+                        <span class="ml-1 opacity-70 font-mono text-[10px]">(${count})</span>
                     </button>
                 `;
             }).join('');
@@ -1456,14 +1836,14 @@
             // Add Dedicated "Selected Favorites" Tab
             const isSelectedTab = currentCategory === 'Selected';
             tabsHtml += `
-                <button onclick="filterByCategory('Selected')" class="px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 ${
+                <button onclick="filterByCategory('Selected')" class="px-4 py-2 rounded-full text-[11px] uppercase tracking-[0.16em] font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 ${
                     isSelectedTab
-                        ? 'bg-wine-700 text-white shadow-sm'
-                        : 'bg-wine-700/10 text-wine-700 dark:bg-wine-400/15 dark:text-wine-300 hover:bg-wine-700/20'
+                        ? 'bg-gradient-to-r from-wine-700 to-wine-500 text-white shadow-md border border-wine-400/50'
+                        : 'bg-wine-900/20 text-wine-700 dark:bg-wine-950/70 dark:text-wine-300 border border-wine-800/50 hover:bg-wine-900/40'
                 }">
                     <i data-lucide="heart" class="w-3 h-3 fill-current"></i>
-                    <span>Selected Favorites</span>
-                    <span class="font-mono text-[11px]">(${selectedCount})</span>
+                    <span>Curated Picks</span>
+                    <span class="font-mono text-[10px]">(${selectedCount})</span>
                 </button>
             `;
             tabsContainer.innerHTML = tabsHtml;
@@ -1486,6 +1866,7 @@
 
             const grid = document.getElementById('masonryGrid');
             const emptyState = document.getElementById('emptyGalleryState');
+            const hasLogoWatermark = !!(brandLogoConfig.logoUrl && brandLogoConfig.useAsWatermark);
 
             if (filteredPhotos.length === 0) {
                 grid.innerHTML = '';
@@ -1493,67 +1874,71 @@
             } else {
                 emptyState.classList.add('hidden');
                 grid.innerHTML = filteredPhotos.map((photo, idx) => `
-                    <article class="masonry-item group relative rounded-2xl overflow-hidden bg-stone-200 dark:bg-stone-900 border ${
+                    <article class="masonry-item group relative rounded-2xl overflow-hidden bg-stone-200 dark:bg-[#11090C] border ${
                         photo.selected
-                            ? 'border-wine-700 ring-2 ring-wine-700/60'
-                            : 'border-stone-200/70 dark:border-stone-800/80'
-                    } shadow-sm transition-all">
+                            ? 'border-wine-500 ring-2 ring-wine-600/60 shadow-[0_15px_35px_-10px_rgba(169,38,66,0.45)]'
+                            : 'border-stone-200/70 dark:border-wine-900/40 hover:border-wine-700/60'
+                    } shadow-lg transition-all duration-300">
                         
                         <!-- Main Photo Image -->
                         <div onclick="openLightbox(${idx})" class="relative cursor-zoom-in overflow-hidden">
                             <img src="${photo.url}" alt="${photo.filename}" loading="lazy"
-                                onerror="this.src='https://placehold.co/800x1000/1f1a1c/ffffff?text=${encodeURIComponent(photo.filename)}'"
+                                onerror="this.src='https://placehold.co/800x1000/14090d/e5c3cc?text=${encodeURIComponent(photo.filename)}'"
                                 class="w-full h-auto block photo-card-img ${gallery.watermark ? 'protected-img' : ''}">
 
-                            <!-- Subtle Proofing Watermark Overlay -->
+                            <!-- Subtle Proofing Watermark Overlay (Uses Uploaded Original Logo if enabled!) -->
                             ${gallery.watermark ? `
-                                <div class="absolute inset-0 pointer-events-none flex items-center justify-center opacity-65">
-                                    <span class="font-serif text-[11px] sm:text-xs tracking-[0.35em] text-white/45 uppercase font-semibold border border-white/20 px-3 py-1 rounded bg-black/15 -rotate-12">
-                                        WINEPRESS PROOF
-                                    </span>
+                                <div class="absolute inset-0 pointer-events-none flex items-center justify-center opacity-60">
+                                    ${hasLogoWatermark ? `
+                                        <img src="${brandLogoConfig.logoUrl}" alt="Watermark" class="object-contain max-h-10 max-w-[140px] opacity-55 drop-shadow">
+                                    ` : `
+                                        <span class="font-serif italic text-[11px] sm:text-xs tracking-[0.38em] text-white/45 uppercase font-normal border border-white/20 px-3.5 py-1 rounded bg-black/25 -rotate-12">
+                                            WINEPRESS PROOF
+                                        </span>
+                                    `}
                                 </div>
                             ` : ''}
 
                             <!-- Gradient Hover Overlay -->
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-black/25 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            <div class="absolute inset-0 bg-gradient-to-t from-[#070506]/90 via-transparent to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         </div>
 
                         <!-- Top Right Floating Heart Selection Button -->
                         <button onclick="togglePhotoSelection('${photo.id}', event)"
                             title="${photo.selected ? 'Remove from Selection' : 'Select Favorite for Retouching'}"
-                            class="absolute top-3 right-3 z-10 w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-md ${
+                            class="absolute top-3.5 right-3.5 z-10 w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-lg ${
                                 photo.selected
-                                    ? 'bg-wine-700 text-white scale-105'
-                                    : 'bg-black/45 hover:bg-wine-700 text-white backdrop-blur-md opacity-90 group-hover:opacity-100'
+                                    ? 'bg-gradient-to-br from-wine-600 to-wine-800 text-white scale-105 border border-wine-400/50'
+                                    : 'bg-black/55 hover:bg-wine-700 text-white backdrop-blur-md border border-white/15 opacity-90 group-hover:opacity-100'
                             }">
                             <i data-lucide="heart" class="w-4 h-4 ${photo.selected ? 'fill-current' : ''}"></i>
                         </button>
 
                         <!-- Top Left Selected Badge -->
                         ${photo.selected ? `
-                            <div class="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full bg-wine-700 text-white text-[10px] font-semibold tracking-wider uppercase shadow">
-                                ★ Selected Pick
+                            <div class="absolute top-3.5 left-3.5 z-10 px-3 py-1 rounded-full bg-gradient-to-r from-wine-800 to-wine-600 text-white text-[9px] font-semibold tracking-[0.22em] uppercase shadow-md border border-wine-400/40">
+                                ★ Curated Pick
                             </div>
                         ` : ''}
 
                         <!-- Bottom Metadata & Quick Actions Bar -->
-                        <div class="p-3 bg-white/95 dark:bg-studioCard/95 border-t border-stone-200/60 dark:border-stone-800 flex items-center justify-between gap-2">
+                        <div class="p-3.5 bg-white/95 dark:bg-[#11090C]/95 border-t border-stone-200/60 dark:border-wine-900/40 flex items-center justify-between gap-2">
                             <div class="min-w-0">
-                                <span class="block font-mono text-xs font-medium text-stone-800 dark:text-stone-200 truncate">${photo.filename}</span>
+                                <span class="block font-mono text-xs font-medium text-stone-800 dark:text-alabaster truncate">${photo.filename}</span>
                                 ${photo.note ? `
-                                    <span class="block text-[11px] text-wine-700 dark:text-wine-400 truncate mt-0.5">
+                                    <span class="block text-[11px] text-wine-600 dark:text-wine-400 truncate mt-0.5 italic font-serif">
                                         ✎ "${photo.note}"
                                     </span>
                                 ` : `
-                                    <span class="block text-[10px] text-stone-400 uppercase tracking-wider">${photo.category}</span>
+                                    <span class="block text-[9px] text-stone-400 dark:text-pewter uppercase tracking-[0.24em] mt-0.5">${photo.category}</span>
                                 `}
                             </div>
 
                             <div class="flex items-center gap-1 shrink-0">
-                                <button onclick="openLightbox(${idx})" title="Add Retouch Note / Zoom" class="p-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-500 hover:text-stone-900 dark:hover:text-white transition-colors">
+                                <button onclick="openLightbox(${idx})" title="Add Retouch Note / Inspect Frame" class="p-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-wine-950/80 text-stone-500 dark:text-champagne hover:text-wine-500 dark:hover:text-white transition-colors">
                                     <i data-lucide="message-square-plus" class="w-4 h-4"></i>
                                 </button>
-                                <button onclick="downloadSinglePhoto('${photo.id}', event)" title="Download Photo" class="p-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-500 hover:text-stone-900 dark:hover:text-white transition-colors">
+                                <button onclick="downloadSinglePhoto('${photo.id}', event)" title="Download High-Res Frame" class="p-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-wine-950/80 text-stone-500 dark:text-champagne hover:text-wine-500 dark:hover:text-white transition-colors">
                                     <i data-lucide="download" class="w-4 h-4"></i>
                                 </button>
                             </div>
@@ -1653,10 +2038,20 @@
             document.getElementById('lightboxImage').src = photo.url;
             document.getElementById('lightboxNoteInput').value = photo.note || '';
 
-            // Watermark visibility inside Lightbox
+            // Watermark visibility inside Lightbox (Supports Uploaded Original Logo!)
             const wm = document.getElementById('lightboxWatermark');
+            const wmLogo = document.getElementById('lightboxWatermarkLogoImg');
+            const wmText = document.getElementById('lightboxWatermarkText');
             if (gallery.watermark) {
                 wm.classList.remove('hidden');
+                if (brandLogoConfig.logoUrl && brandLogoConfig.useAsWatermark && wmLogo) {
+                    wmLogo.src = brandLogoConfig.logoUrl;
+                    wmLogo.classList.remove('hidden');
+                    if (wmText) wmText.textContent = 'PROOF';
+                } else {
+                    if (wmLogo) wmLogo.classList.add('hidden');
+                    if (wmText) wmText.textContent = 'WINEPRESS PROOF';
+                }
             } else {
                 wm.classList.add('hidden');
             }
@@ -2573,7 +2968,12 @@
                 console.error('Cloud initialization error:', err);
                 setCloudSyncStatus('local', 'OFFLINE CACHE MODE');
             }
-            // 1. Listen to Studio Settings (e.g. Master Passcode & Google Drive API Key)
+        }
+
+        function startRealTimeListeners(user) {
+            if (!user || !db) return;
+
+            // 1. Listen to Studio Settings (Master Passcode, Google Drive API Key & Original Brand Logo)
             const settingsDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'winepress_settings', 'studio_config');
             onSnapshot(
                 settingsDocRef,
@@ -2587,6 +2987,14 @@
                             studioGoogleDriveApiKey = data.googleDriveApiKey;
                             const keyInput = document.getElementById('driveApiKeyInput');
                             if (keyInput && !keyInput.value) keyInput.value = studioGoogleDriveApiKey;
+                        }
+                        if (data.brandLogoConfig && typeof data.brandLogoConfig === 'object') {
+                            brandLogoConfig = {
+                                ...brandLogoConfig,
+                                ...data.brandLogoConfig
+                            };
+                            renderBrandIdentityUI();
+                            renderClientGallery();
                         }
                     }
                 },
